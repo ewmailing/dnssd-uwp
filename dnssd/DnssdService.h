@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "dnssd.h"
+#include "dnssd_uwp.h"
 #include <string>
 
 namespace dnssd_uwp

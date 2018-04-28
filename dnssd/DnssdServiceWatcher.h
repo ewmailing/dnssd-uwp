@@ -16,7 +16,7 @@
 #include <functional>
 #include <map>
 
-#include "dnssd.h"
+#include "dnssd_uwp.h"
 
 namespace dnssd_uwp
 {

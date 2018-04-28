@@ -10,7 +10,7 @@
 // THE CODE OR THE USE OR OTHER DEALINGS IN THE CODE.
 // ******************************************************************
 
-#include "dnssd.h"
+#include "dnssd_uwp.h"
 #include "DnssdClient.h"
 
 using namespace dnssd_uwp;
@@ -53,7 +53,7 @@ DnssdErrorType DnssdClient::InitializeDnssd()
 
     if (mDllHandle == NULL)
     {
-        mDllHandle = LoadLibrary(L"Dnssd.dll");
+        mDllHandle = LoadLibrary(L"Dnssd_uwp.dll");
         if (NULL == mDllHandle)
         {
             result = DNSSD_DLL_MISSING_ERROR;

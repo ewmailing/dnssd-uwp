@@ -21,9 +21,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dnssd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DnssdServiceWatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -31,6 +28,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DnssdUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnssd_uwp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

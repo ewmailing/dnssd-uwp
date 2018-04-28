@@ -11,7 +11,7 @@
 // ******************************************************************
 
 #include "stdafx.h"
-#include "dnssd.h"
+#include "dnssd_uwp.h"
 #include "DnssdClient.h"
 #include "WindowsVersionHelper.h"
 #include <iostream>

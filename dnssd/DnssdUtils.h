@@ -16,7 +16,7 @@
 #include <memory>
 #include <string>
 
-#include "dnssd.h"
+#include "dnssd_uwp.h"
 
 namespace dnssd_uwp
 {

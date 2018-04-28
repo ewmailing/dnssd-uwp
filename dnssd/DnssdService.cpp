@@ -10,7 +10,7 @@
 // THE CODE OR THE USE OR OTHER DEALINGS IN THE CODE.
 // ******************************************************************
 
-#include "dnssd.h"
+#include "dnssd_uwp.h"
 #include "DnssdService.h"
 #include "Dnssdutils.h"
 #include <ppltasks.h>

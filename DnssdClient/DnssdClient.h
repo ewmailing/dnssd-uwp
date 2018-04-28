@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "dnssd.h"
+#include "dnssd_uwp.h"
 #include <string>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
