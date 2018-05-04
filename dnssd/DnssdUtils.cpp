@@ -21,12 +21,39 @@
 
 namespace dnssd_uwp
 {
-    Platform::String^ StringToPlatformString(const std::string& s)
+    Platform::String^ StringToPlatformString1(const std::string& s)
     {
         std::wstring w(s.begin(), s.end());
         Platform::String^ p = ref new Platform::String(w.c_str());
         return p;
     }
+
+	wchar_t* CStrToWStr(const char* input_str)
+	{
+		if(NULL == input_str)
+		{
+			return NULL;
+		}
+		int str_len = (int)strlen(input_str);
+		int num_chars = MultiByteToWideChar(CP_UTF8, 0, input_str, str_len, NULL, 0);
+		wchar_t* output_winstr = (wchar_t*)malloc((num_chars + 1) * sizeof(wchar_t));
+		if(output_winstr)
+		{
+			MultiByteToWideChar(CP_UTF8, 0, input_str, str_len, output_winstr, num_chars);
+			output_winstr[num_chars] = L'\0';
+		}
+		return output_winstr;
+	}
+	Platform::String^ StringToPlatformString(const std::string& s)
+    {
+		wchar_t* w_str = CStrToWStr(s.c_str());
+
+//        std::wstring w(s.begin(), s.end());
+        Platform::String^ p = ref new Platform::String(w_str);
+		free(w_str);
+        return p;
+    }
+
 
     std::string PlatformStringToString(Platform::String^ s)
     {
@@ -44,6 +71,7 @@ namespace dnssd_uwp
         std::string stringUtf8 = convert.to_bytes(s->Data());
         return stringUtf8;
     }
+
 }
 
 

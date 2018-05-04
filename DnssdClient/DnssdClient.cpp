@@ -12,7 +12,7 @@
 
 #include "dnssd_uwp.h"
 #include "DnssdClient.h"
-
+#include <string>
 using namespace dnssd_uwp;
 using namespace std;
 
@@ -25,7 +25,13 @@ DnssdClient::DnssdClient()
     mDnssdFreeServiceFunc = nullptr;
     mDnssdServicePtr = nullptr;
     mDnssdServiceWatcherPtr = nullptr;
-    mDllHandle = NULL;
+    mDnssdServiceDiscoveryPtr = nullptr;
+	mDllHandle = NULL;
+
+	mDnssdRegisterServiceFunc = nullptr;
+	mDnssdStartDiscoveryFunc = nullptr;
+	mDnssdStopDiscoveryFunc = nullptr;
+
 }
 
 DnssdClient::~DnssdClient()
@@ -39,6 +45,15 @@ DnssdClient::~DnssdClient()
     {
         mDnssdFreeServiceWatcherFunc(mDnssdServiceWatcherPtr);
     }
+
+	if(mDnssdStopDiscoveryFunc && mDnssdServiceDiscoveryPtr)
+	{
+		mDnssdStopDiscoveryFunc(mDnssdServiceDiscoveryPtr);
+	}
+	if(mDnssdStopResolveFunc && mDnssdServiceResolverPtr)
+	{
+		mDnssdStopResolveFunc(mDnssdServiceResolverPtr);
+	}
 
     //Free the library:
     if (mDllHandle)
@@ -77,7 +92,15 @@ DnssdErrorType DnssdClient::InitializeDnssd()
     //Get pointer to the DnssdCreateServiceFunc function using GetProcAddress:  
     mDnssdCreateServiceFunc = reinterpret_cast<DnssdCreateServiceFunc>(::GetProcAddress(mDllHandle, "dnssd_create_service"));
 
-    // initialize dnssd interface
+    mDnssdRegisterServiceFunc = reinterpret_cast<DnssdRegisterServiceFunc>(::GetProcAddress(mDllHandle, "dnssd_register_service"));
+    mDnssdUnregisterServiceFunc = reinterpret_cast<DnssdUnregisterServiceFunc>(::GetProcAddress(mDllHandle, "dnssd_unregister_service"));
+    mDnssdStartDiscoveryFunc = reinterpret_cast<DnssdStartDiscoveryFunc>(::GetProcAddress(mDllHandle, "dnssd_start_discovery"));
+	mDnssdStopDiscoveryFunc = reinterpret_cast<DnssdStopDiscoveryFunc>(::GetProcAddress(mDllHandle, "dnssd_stop_discovery"));
+
+	mDnssdStartResolveFunc = reinterpret_cast<DnssdStartResolveFunc>(::GetProcAddress(mDllHandle, "dnssd_start_resolve"));
+	mDnssdStopResolveFunc = reinterpret_cast<DnssdStopResolveFunc>(::GetProcAddress(mDllHandle, "dnssd_stop_resolve"));
+
+	// initialize dnssd interface
     result = mDnssdInitFunc();
     if (result != DNSSD_NO_ERROR)
     {
@@ -100,6 +123,56 @@ DnssdErrorType DnssdClient::InitializeDnssdService(const std::string& serviceNam
     // create a dns service 
     DnssdErrorType result = mDnssdCreateServiceFunc(serviceName.c_str(), port.c_str(), &mDnssdServicePtr);
     return result;
+}
+
+DnssdErrorType DnssdClient::RegisterDnssdService(const std::string& service_name, const std::string& service_type, const char* domain, uint16_t network_port, DnssdRegisterCallback callback_function, void* user_data )
+{
+    // create a dns service 
+//    DnssdErrorType result = mDnssdCreateServiceFunc(serviceName.c_str(), port.c_str(), &mDnssdServicePtr);
+    DnssdErrorType result = DNSSD_NO_ERROR;
+	result = mDnssdRegisterServiceFunc(service_name.c_str(), service_type.c_str(), domain, network_port, callback_function, user_data, &mDnssdServicePtr);
+
+    return result;
+}
+
+void DnssdClient::UnregisterDnssdService()
+{
+    // create a dns service 
+//    DnssdErrorType result = mDnssdCreateServiceFunc(serviceName.c_str(), port.c_str(), &mDnssdServicePtr);
+	mDnssdUnregisterServiceFunc(mDnssdServicePtr);
+	mDnssdServicePtr = nullptr;
+
+}
+
+DnssdErrorType DnssdClient::StartDiscovery(const std::string& service_type, const char* domain, DnssdServiceDiscoveryChangedCallback callback_function, void* user_data)
+{
+    // create a dns service 
+//    DnssdErrorType result = mDnssdCreateServiceFunc(serviceName.c_str(), port.c_str(), &mDnssdServicePtr);
+
+	DnssdErrorType result = mDnssdStartDiscoveryFunc(service_type.c_str(), domain, callback_function, user_data, &mDnssdServiceDiscoveryPtr);
+    return result;
+}
+
+void DnssdClient::StopDiscovery()
+{
+	mDnssdStopDiscoveryFunc(mDnssdServiceDiscoveryPtr);
+	mDnssdServiceDiscoveryPtr = nullptr;
+}
+
+
+DnssdErrorType DnssdClient::StartResolve(const std::string& service_name, const std::string& service_type, const char* domain, DnssdServiceResolverChangedCallback callback_function, void* user_data)
+{
+    // create a dns service 
+//    DnssdErrorType result = mDnssdCreateServiceFunc(serviceName.c_str(), port.c_str(), &mDnssdServicePtr);
+
+	DnssdErrorType result = mDnssdStartResolveFunc(service_name.c_str(), service_type.c_str(), domain, callback_function, user_data, &mDnssdServiceResolverPtr);
+    return result;
+}
+
+void DnssdClient::StopResolve()
+{
+	mDnssdStopResolveFunc(mDnssdServiceResolverPtr);
+	mDnssdServiceResolverPtr = nullptr;
 }
 
 

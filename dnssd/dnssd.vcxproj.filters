@@ -33,6 +33,12 @@
     <ClInclude Include="dnssd_uwp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DnssdServiceDiscovery.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DnssdServiceResolver.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -48,6 +54,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DnssdUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DnssdServiceDiscovery.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DnssdServiceResolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

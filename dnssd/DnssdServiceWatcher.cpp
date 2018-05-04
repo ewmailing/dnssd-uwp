@@ -98,8 +98,8 @@ namespace dnssd_uwp
 
     void DnssdServiceWatcher::UpdateDnssdService(DnssdServiceUpdateType type, Windows::Foundation::Collections::IMapView<Platform::String^, Platform::Object^>^ props, Platform::String^ serviceId)
     {
-        auto box = safe_cast<Platform::IBoxArray<Platform::String^>^>(props->Lookup("System.Devices.IpAddress"));
-        Platform::String^ host = box->Value->get(0);
+//        auto box = safe_cast<Platform::IBoxArray<Platform::String^>^>(props->Lookup("System.Devices.IpAddress"));
+//        Platform::String^ host = box->Value->get(0);
         Platform::String^ port = props->Lookup("System.Devices.Dnssd.PortNumber")->ToString();
         Platform::String^ name = props->Lookup("System.Devices.Dnssd.InstanceName")->ToString();
 
@@ -107,11 +107,13 @@ namespace dnssd_uwp
         if (it != mServices.end()) // service was previously found. Update the info and report change if necessary
         {
             auto info = it->second;
+			/*
             if (info->mHost != host)
             {
                 info->mHost = host;
                 info->mChanged = true;
             }
+			*/
             if (info->mPort != port)
             {
                 info->mPort = port;
@@ -134,7 +136,7 @@ namespace dnssd_uwp
         {
             DnssdServiceInstance^ info = ref new DnssdServiceInstance;
             info->mId = serviceId;
-            info->mHost = host;
+ //           info->mHost = host;
             info->mPort = port;
             info->mInstanceName = name;
             info->mType = DnssdServiceUpdateType::ServiceAdded;
@@ -151,12 +153,12 @@ namespace dnssd_uwp
         DnssdServiceInfo serviceInfo;
 
         // convert Platform::Strings to std::strings 
-        std::string host = PlatformStringToString(info->mHost);
+  //      std::string host = PlatformStringToString(info->mHost);
         std::string  port = PlatformStringToString(info->mPort);
         std::string instanceName = PlatformStringToString(info->mInstanceName);
         std::string id = PlatformStringToString(info->mId);
 
-        serviceInfo.host = host.c_str();
+  //      serviceInfo.host = host.c_str();
         serviceInfo.port = port.c_str();
         serviceInfo.id = id.c_str();
         //serviceInfo.instanceName = instanceName.c_str();
@@ -202,7 +204,8 @@ namespace dnssd_uwp
         std::vector<Platform::String^> removedServices;
 
         // iterate through the services list and remove any service that is marked for removal
-        for (auto it = mServices.begin(); it != mServices.end(); ++it)
+
+		for (auto it = mServices.begin(); it != mServices.end(); ++it)
         {
             auto service = it->second;
             if (service->mType == DnssdServiceUpdateType::ServiceRemoved)
