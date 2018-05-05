@@ -17,6 +17,12 @@
 #include "DnssdServiceResolver.h"
 #include <wrl\wrappers\corewrappers.h>
 
+#if defined(DNSSD_EXPORT)
+#undef DNSSD_API
+#define DNSSD_API extern "C" __declspec(dllexport)
+#else
+#define DNSSD_API extern "C" __declspec(dllimport)
+#endif
 
 namespace dnssd_uwp
 {

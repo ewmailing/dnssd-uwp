@@ -12,16 +12,18 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(DNSSD_EXPORT)
-#define DNSSD_API extern "C" __declspec(dllexport)
+#define DNSSD_API extern __declspec(dllexport)
 #else
-#define DNSSD_API extern "C" __declspec(dllimport)
+#define DNSSD_API extern __declspec(dllimport)
 #endif
 
 #include <stdint.h>
 
-namespace dnssd_uwp
-{
 #ifdef DNSSDUWP_USE_LEGACY
     enum DnssdServiceUpdateType { ServiceAdded, ServiceUpdated, ServiceRemoved };
 #endif
@@ -113,5 +115,7 @@ namespace dnssd_uwp
 	typedef void(__cdecl *DnssdStopResolveFunc)(DnssdServiceResolverPtr resolver_ptr);
 	DNSSD_API void __cdecl dnssd_stop_resolve(DnssdServiceResolverPtr resolver_ptr);
 
-};
- 
+
+#ifdef __cplusplus
+}
+#endif
