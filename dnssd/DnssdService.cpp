@@ -34,7 +34,9 @@ DnssdService::DnssdService(const std::string& name, const std::string& port)
 }
 #endif
 
-DnssdService::DnssdService(const std::string& service_name, const std::string& service_type, const char* domain, uint16_t port, DnssdRegisterCallback callback_function, void* user_data)
+DnssdService::DnssdService(const std::string& service_name, const std::string& service_type, const char* domain, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data)
+	: mTxtRecordVector(txt_record_length),
+	mTxtRecordLength(txt_record_length)
 {
 	mServiceNameStr = service_name;
 	mServiceTypeStr = service_type;
@@ -58,6 +60,13 @@ DnssdService::DnssdService(const std::string& service_name, const std::string& s
 
 //    mPort = StringToPlatformString(std::to_string(ntohs(port))); // Does Windows assume host order?
     mPort = StringToPlatformString(std::to_string(port)); // Does Windows assume host order?
+
+	// My attempt to initialize an initial capacity in the constructor caused that many blank elements to be inserted.
+	mTxtRecordVector.clear();
+	for(size_t i=0; i<txt_record_length; i++)
+	{
+		mTxtRecordVector.push_back(txt_record[i]);
+	}
 }
 
 DnssdService::~DnssdService()
@@ -204,6 +213,56 @@ DnssdErrorType DnssdService::StartRegistration()
 		//txt_attributes->Insert("key2", "2.0f");
 		//mService->TextAttributes->Insert("MaxUsers", "22");
 		//mService->TextAttributes->Insert("SomeKey", "SomeValue");
+
+		// DNS TXT record max size is supposed to be 255 characters, however, I don't think it includes the leading byte indicators.
+		// I'm using 512 as an upper bound in case the user gives a malformed string. This will avoid getting trapped in an infinite loop.
+		for(size_t i=0; ((i<mTxtRecordLength) && (i<512)); )
+		{
+			// this does count the = sign as part of the byte count
+			size_t next_str_len = (size_t)mTxtRecordVector[i];
+			i++;
+			char key_buffer[256];
+			char value_buffer[256];
+			memset(key_buffer, 0, 256);
+			memset(value_buffer, 0, 256);
+			bool is_key_state = true;
+			// The equal sign does not count as part of the key=value length
+			size_t j=0;
+			size_t k=0;
+			for(j=0; ((j<next_str_len) && (j<257)); j++)
+			{
+				char current_char = mTxtRecordVector[i];
+				i++;
+				if(current_char == '=')
+				{
+					is_key_state = false;
+					k=i+1;
+					key_buffer[j] = '\0';
+					j++; // because we are breaking out, j won't get incremented, but we need to continue the count in the following loop so we need to manually increment here.
+					break;
+				}
+				key_buffer[j] = current_char;
+			}
+			// Make sure we got an = character. If not, skip this or try using ""?
+			if(is_key_state)
+			{
+				// if we are here, the key_buffer was not NULL terminated.
+				key_buffer[j] = '\0';
+				mService->TextAttributes->Insert(StringToPlatformString(key_buffer), "");
+				continue; // go to next loop
+			}
+
+			// Using j here is not a bug. We are continuing on the character count because the combined key=value makes up the entire string length.
+			for(k=0; ((j<next_str_len) && (j<257)); j++, k++)
+			{
+				char current_char = mTxtRecordVector[i];
+				i++;
+				value_buffer[k] = current_char;
+			}
+			value_buffer[k] = '\0';
+			mService->TextAttributes->Insert(StringToPlatformString(key_buffer), StringToPlatformString(value_buffer));
+		}
+
 
         return create_task(mService->RegisterStreamSocketListenerAsync(mSocket));
     }));

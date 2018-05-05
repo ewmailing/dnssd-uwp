@@ -86,8 +86,8 @@ namespace dnssd_uwp
 
     // dnssd register callback
 	typedef void(*DnssdRegisterCallback) (DnssdServicePtr service_ptr, const char* service_name, const char* service_type, const char* domain, uint16_t network_port, DnssdErrorType error_code, void* user_data);
-    typedef  DnssdErrorType(__cdecl *DnssdRegisterServiceFunc)(const char* service_name, const char* service_type, const char* domain, uint16_t port, DnssdRegisterCallback callback_function, void* user_data, DnssdServicePtr* out_service_ptr);
-	DNSSD_API DnssdErrorType __cdecl dnssd_register_service(const char* service_name, const char* service_type, const char* domain, uint16_t port, DnssdRegisterCallback callback_function, void* user_data, DnssdServicePtr* out_service_ptr);
+    typedef  DnssdErrorType(__cdecl *DnssdRegisterServiceFunc)(const char* service_name, const char* service_type, const char* domain, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data, DnssdServicePtr* out_service_ptr);
+	DNSSD_API DnssdErrorType __cdecl dnssd_register_service(const char* service_name, const char* service_type, const char* domain, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data, DnssdServicePtr* out_service_ptr);
 
     typedef  DnssdErrorType(__cdecl *DnssdUnregisterServiceFunc)(DnssdServicePtr service_ptr);
     DNSSD_API void __cdecl dnssd_unregister_service(DnssdServicePtr service);
@@ -103,7 +103,7 @@ namespace dnssd_uwp
 
 
 	// dnssd service resolve changed callback
-    typedef void(*DnssdServiceResolverChangedCallback) (DnssdServiceResolverPtr service_resolver, const char* service_name, const char* service_type, const char* domain, const char* full_name, const char* host_target, uint16_t port, const char* txt_record, size_t txt_record_length, DnssdErrorType error_code, void* user_data);
+    typedef void(*DnssdServiceResolverChangedCallback) (DnssdServiceResolverPtr service_resolver, const char* service_name, const char* service_type, const char* domain, const char* full_name, const char* host_target, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdErrorType error_code, void* user_data);
 	typedef  DnssdErrorType(__cdecl *DnssdStartResolveFunc)(const char* service_name, const char* service_type, const char* domain, DnssdServiceResolverChangedCallback callback_function, void* user_data, DnssdServiceResolverPtr* out_resolver_ptr);
 	DNSSD_API DnssdErrorType __cdecl dnssd_start_resolve(const char* service_name, const char* service_type, const char* domain, DnssdServiceResolverChangedCallback callback_function, void* user_data, DnssdServiceResolverPtr* out_resolver_ptr);
 

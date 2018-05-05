@@ -177,7 +177,7 @@ void OnDiscoveryCallback(DnssdServiceDiscoveryPtr service_discovery, const char*
 }
 
 #include <WinDNS.h>
-void OnResolveCallback(DnssdServiceResolverPtr service_resolver, const char* service_name, const char* service_type, const char* domain, const char* full_name, const char* host_target, uint16_t port, const char* txt_record, size_t txt_record_length, DnssdErrorType error_code, void* user_data)
+void OnResolveCallback(DnssdServiceResolverPtr service_resolver, const char* service_name, const char* service_type, const char* domain, const char* full_name, const char* host_target, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdErrorType error_code, void* user_data)
 {
 	    EnterCriticalSection(&gCriticalSection);
 	//	        auto cp = GetConsoleOutputCP();
@@ -309,7 +309,10 @@ _setmode(_fileno(stdout), _O_U16TEXT);
 #endif
 #if 1
 //    result = gDnssdClient->InitializeDnssdService(gServiceName, gServicePort);
-    result = gDnssdClient->RegisterDnssdService("MyServiceName", gServiceName, NULL, gNetworkPort, OnRegisterCallback, NULL);
+//    result = gDnssdClient->RegisterDnssdService("MyServiceName", gServiceName, NULL, gNetworkPort, NULL, 0, OnRegisterCallback, NULL);
+	char txt_record[] = "\xfMyKey1=MyValue1\xfMyKey2=MyValue2";
+	uint16_t txt_record_length = (uint16_t)strlen(txt_record);
+    result = gDnssdClient->RegisterDnssdService("MyServiceName", gServiceName, NULL, gNetworkPort, txt_record, txt_record_length, OnRegisterCallback, NULL);
     if (result != DNSSD_NO_ERROR)
     {
         wcout << L"Unable to initialize dnssd service" << endl;

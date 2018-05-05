@@ -423,10 +423,10 @@ namespace dnssd_uwp
 			}
 
 			const char* txt_record = NULL;
-			size_t txt_record_length = 0;
+			uint16_t txt_record_length = 0;
 			if(info->mCombinedTxtRecord.size() > 0)
 			{
-				txt_record_length = info->mCombinedTxtRecord.size();
+				txt_record_length = (uint16_t)info->mCombinedTxtRecord.size();
 				txt_record = info->mCombinedTxtRecord.data();
 			}
 
