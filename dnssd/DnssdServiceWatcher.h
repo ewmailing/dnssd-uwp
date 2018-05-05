@@ -11,6 +11,7 @@
 // ******************************************************************
 
 #pragma once
+#ifdef DNSSDUWP_USE_LEGACY
 
 #include <string>
 #include <functional>
@@ -104,6 +105,7 @@ namespace dnssd_uwp
     };
 };
 
+#endif
 
 
 

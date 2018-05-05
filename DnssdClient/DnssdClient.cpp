@@ -19,16 +19,21 @@ using namespace std;
 DnssdClient::DnssdClient()
 {
     mDnssdInitFunc = nullptr;
+#ifdef DNSSDUWP_USE_LEGACY
+
     mDnssdCreateServiceWatcherFunc = nullptr;
     mDnssdFreeServiceWatcherFunc = nullptr;
     mDnssdCreateServiceFunc = nullptr;
     mDnssdFreeServiceFunc = nullptr;
-    mDnssdServicePtr = nullptr;
     mDnssdServiceWatcherPtr = nullptr;
-    mDnssdServiceDiscoveryPtr = nullptr;
+#endif
+    mDnssdServicePtr = nullptr;
+	mDnssdServiceDiscoveryPtr = nullptr;
+
 	mDllHandle = NULL;
 
 	mDnssdRegisterServiceFunc = nullptr;
+	mDnssdUnregisterServiceFunc = nullptr;
 	mDnssdStartDiscoveryFunc = nullptr;
 	mDnssdStopDiscoveryFunc = nullptr;
 
@@ -36,7 +41,8 @@ DnssdClient::DnssdClient()
 
 DnssdClient::~DnssdClient()
 {
-    if (mDnssdFreeServiceFunc && mDnssdServicePtr)
+#ifdef DNSSDUWP_USE_LEGACY
+	if (mDnssdFreeServiceFunc && mDnssdServicePtr)
     {
         mDnssdFreeServiceFunc(mDnssdServicePtr);
     }
@@ -45,7 +51,11 @@ DnssdClient::~DnssdClient()
     {
         mDnssdFreeServiceWatcherFunc(mDnssdServiceWatcherPtr);
     }
-
+#endif
+	if (mDnssdUnregisterServiceFunc && mDnssdServicePtr)
+    {
+        mDnssdUnregisterServiceFunc(mDnssdServicePtr);
+    }
 	if(mDnssdStopDiscoveryFunc && mDnssdServiceDiscoveryPtr)
 	{
 		mDnssdStopDiscoveryFunc(mDnssdServiceDiscoveryPtr);
@@ -80,6 +90,8 @@ DnssdErrorType DnssdClient::InitializeDnssd()
     //Get pointer to the DnssdInitializeFunc function using GetProcAddress:  
     mDnssdInitFunc = reinterpret_cast<DnssdInitializeFunc>(::GetProcAddress(mDllHandle, "dnssd_initialize"));
 
+#ifdef DNSSDUWP_USE_LEGACY
+
     //Get pointer to the DnssdFreeServiceWatcherFunc function using GetProcAddress:  
     mDnssdFreeServiceWatcherFunc = reinterpret_cast<DnssdFreeServiceWatcherFunc>(::GetProcAddress(mDllHandle, "dnssd_free_service_watcher"));
 
@@ -91,6 +103,7 @@ DnssdErrorType DnssdClient::InitializeDnssd()
 
     //Get pointer to the DnssdCreateServiceFunc function using GetProcAddress:  
     mDnssdCreateServiceFunc = reinterpret_cast<DnssdCreateServiceFunc>(::GetProcAddress(mDllHandle, "dnssd_create_service"));
+#endif
 
     mDnssdRegisterServiceFunc = reinterpret_cast<DnssdRegisterServiceFunc>(::GetProcAddress(mDllHandle, "dnssd_register_service"));
     mDnssdUnregisterServiceFunc = reinterpret_cast<DnssdUnregisterServiceFunc>(::GetProcAddress(mDllHandle, "dnssd_unregister_service"));
@@ -111,6 +124,7 @@ cleanup:
     return result;
 }
 
+#ifdef DNSSDUWP_USE_LEGACY
 DnssdErrorType DnssdClient::InitializeDnssdServiceWatcher(const std::string& serviceName, const std::string& port, DnssdServiceChangedCallback callback)
 {
     // create a dns service watcher
@@ -124,6 +138,7 @@ DnssdErrorType DnssdClient::InitializeDnssdService(const std::string& serviceNam
     DnssdErrorType result = mDnssdCreateServiceFunc(serviceName.c_str(), port.c_str(), &mDnssdServicePtr);
     return result;
 }
+#endif
 
 DnssdErrorType DnssdClient::RegisterDnssdService(const std::string& service_name, const std::string& service_type, const char* domain, uint16_t network_port, DnssdRegisterCallback callback_function, void* user_data )
 {

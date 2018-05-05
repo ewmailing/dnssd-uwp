@@ -77,6 +77,8 @@ char* BlurrrPlatformWindows_CreateUTF8fromWINString(const wchar_t* input_wstr)
     return output_utf8str;
 }
 
+#ifdef DNSSDUWP_USE_LEGACY
+
 void dnssdServiceChangedCallback(const DnssdServiceWatcherPtr serviceWatcher, DnssdServiceUpdateType update, DnssdServiceInfoPtr info)
 {
     EnterCriticalSection(&gCriticalSection);
@@ -110,6 +112,7 @@ void dnssdServiceChangedCallback(const DnssdServiceWatcherPtr serviceWatcher, Dn
     wcout << endl;
     LeaveCriticalSection(&gCriticalSection);
 }
+#endif
 
 void OnRegisterCallback(DnssdServicePtr service_ptr, const char* service_name, const char* service_type, const char* domain, uint16_t network_port, DnssdErrorType error_code, void* user_data)
 {

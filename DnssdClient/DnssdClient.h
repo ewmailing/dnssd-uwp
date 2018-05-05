@@ -26,8 +26,10 @@ namespace dnssd_uwp
         ~DnssdClient();
 
         DnssdErrorType InitializeDnssd();
+#ifdef DNSSDUWP_USE_LEGACY
         DnssdErrorType InitializeDnssdServiceWatcher(const std::string& serviceName, const std::string& port, DnssdServiceChangedCallback callback);
         DnssdErrorType InitializeDnssdService(const std::string& serviceName, const std::string& port);
+#endif
 		DnssdErrorType RegisterDnssdService(const std::string& service_name, const std::string& service_type, const char* domain, uint16_t network_port, DnssdRegisterCallback callback_function, void* user_data);
 		void UnregisterDnssdService();
 		DnssdErrorType StartDiscovery(const std::string& service_type, const char* domain, DnssdServiceDiscoveryChangedCallback callback_function, void* user_data);
@@ -38,10 +40,12 @@ namespace dnssd_uwp
 	private:
         // Dnssd DLL function pointers
         DnssdInitializeFunc             mDnssdInitFunc;
+#ifdef DNSSDUWP_USE_LEGACY
         DnssdCreateServiceWatcherFunc   mDnssdCreateServiceWatcherFunc;
         DnssdFreeServiceWatcherFunc     mDnssdFreeServiceWatcherFunc;
         DnssdCreateServiceFunc          mDnssdCreateServiceFunc;
         DnssdFreeServiceFunc            mDnssdFreeServiceFunc;
+#endif
 
         DnssdRegisterServiceFunc        mDnssdRegisterServiceFunc;
         DnssdUnregisterServiceFunc        mDnssdUnregisterServiceFunc;
@@ -53,8 +57,10 @@ namespace dnssd_uwp
         // dnssd service
         DnssdServicePtr mDnssdServicePtr;
 
+#ifdef DNSSDUWP_USE_LEGACY
         // dnssd service watcher
         DnssdServiceWatcherPtr mDnssdServiceWatcherPtr;
+#endif
 
 		DnssdServiceDiscoveryPtr mDnssdServiceDiscoveryPtr;
 		DnssdServiceResolverPtr mDnssdServiceResolverPtr;

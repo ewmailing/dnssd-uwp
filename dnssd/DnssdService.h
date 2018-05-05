@@ -13,6 +13,10 @@
 #pragma once
 
 #include "dnssd_uwp.h"
+#ifdef DNSSDUWP_USE_LEGACY
+#else
+#include "DnssdUtils.h"
+#endif
 #include <string>
 
 namespace dnssd_uwp
@@ -25,8 +29,10 @@ namespace dnssd_uwp
         virtual ~DnssdService();
 
     internal:
-        DnssdService(const std::string& name, const std::string& port);
+#ifdef DNSSDUWP_USE_LEGACY
+		DnssdService(const std::string& name, const std::string& port);
         DnssdErrorType Start();
+#endif
         DnssdService(const std::string& service_name, const std::string& service_type, const char* domain, uint16_t port, DnssdRegisterCallback callback_function, void* user_data);
         DnssdErrorType StartRegistration();
         void Stop();

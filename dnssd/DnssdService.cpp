@@ -25,11 +25,14 @@ using namespace Windows::Networking::Connectivity;
 using namespace Windows::Networking::Sockets;
 using namespace Windows::Networking::ServiceDiscovery::Dnssd;
 
+#ifdef DNSSDUWP_USE_LEGACY
+
 DnssdService::DnssdService(const std::string& name, const std::string& port)
 {
     mServiceName = StringToPlatformString(name);
     mPort = StringToPlatformString(port);
 }
+#endif
 
 DnssdService::DnssdService(const std::string& service_name, const std::string& service_type, const char* domain, uint16_t port, DnssdRegisterCallback callback_function, void* user_data)
 {
@@ -62,6 +65,7 @@ DnssdService::~DnssdService()
     DnssdService::Stop();
 }
 
+#ifdef DNSSDUWP_USE_LEGACY
 DnssdErrorType DnssdService::Start()
 {
     DnssdErrorType result = DNSSD_NO_ERROR;
@@ -143,7 +147,7 @@ DnssdErrorType DnssdService::Start()
 
     return result;
 }
-
+#endif
 
 DnssdErrorType DnssdService::StartRegistration()
 {
@@ -198,8 +202,8 @@ DnssdErrorType DnssdService::StartRegistration()
 //		IMap<Platform::String^, Platform::String^>^ txt_attributes = ref new IMap<Platform::String^, Platform::String^>^();
 //		txt_attributes->Insert("MaxUsers", "20");
 		//txt_attributes->Insert("key2", "2.0f");
-		mService->TextAttributes->Insert("MaxUsers", "22");
-		mService->TextAttributes->Insert("SomeKey", "SomeValue");
+		//mService->TextAttributes->Insert("MaxUsers", "22");
+		//mService->TextAttributes->Insert("SomeKey", "SomeValue");
 
         return create_task(mService->RegisterStreamSocketListenerAsync(mSocket));
     }));

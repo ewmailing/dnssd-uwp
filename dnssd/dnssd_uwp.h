@@ -22,8 +22,9 @@
 
 namespace dnssd_uwp
 {
+#ifdef DNSSDUWP_USE_LEGACY
     enum DnssdServiceUpdateType { ServiceAdded, ServiceUpdated, ServiceRemoved };
-
+#endif
     enum DnssdErrorType {
         DNSSD_NO_ERROR = 0,                         // no error
         DNSSD_WINDOWS_RUNTIME_INITIALIZATION_ERROR, // unable to initialize Windows Runtime
@@ -41,11 +42,12 @@ namespace dnssd_uwp
         DNSSD_UNSPECIFIED_ERROR
     };
 
-    typedef void* DnssdServiceWatcherPtr;
     typedef void* DnssdServicePtr;
     typedef void* DnssdServiceDiscoveryPtr;
     typedef void* DnssdServiceResolverPtr;
 
+#ifdef DNSSDUWP_USE_LEGACY
+    typedef void* DnssdServiceWatcherPtr;
     // dnssd service info
     typedef struct 
     {
@@ -56,11 +58,12 @@ namespace dnssd_uwp
     } DnssdServiceInfo;
 
     typedef DnssdServiceInfo* DnssdServiceInfoPtr;
-
+#endif
     // dnssd functions
     typedef DnssdErrorType(__cdecl *DnssdInitializeFunc)();
     DNSSD_API DnssdErrorType __cdecl dnssd_initialize();
 
+#ifdef DNSSDUWP_USE_LEGACY
     // dnssd service watcher functions
 
     // dnssd service watcher changed callback
@@ -76,7 +79,7 @@ namespace dnssd_uwp
     // dnssd service create function
     typedef  DnssdErrorType(__cdecl *DnssdCreateServiceFunc)(const char* serviceName, const char* port, DnssdServicePtr *service);
     DNSSD_API DnssdErrorType __cdecl dnssd_create_service(const char* serviceName, const char* port, DnssdServicePtr *service);
-
+#endif
     typedef void(__cdecl *DnssdFreeServiceFunc)(DnssdServicePtr service);
     DNSSD_API void __cdecl dnssd_free_service(DnssdServicePtr service);
 
@@ -87,6 +90,7 @@ namespace dnssd_uwp
 	DNSSD_API DnssdErrorType __cdecl dnssd_register_service(const char* service_name, const char* service_type, const char* domain, uint16_t port, DnssdRegisterCallback callback_function, void* user_data, DnssdServicePtr* out_service_ptr);
 
     typedef  DnssdErrorType(__cdecl *DnssdUnregisterServiceFunc)(DnssdServicePtr service_ptr);
+    DNSSD_API void __cdecl dnssd_unregister_service(DnssdServicePtr service);
 
 	
     // dnssd service discovery changed callback

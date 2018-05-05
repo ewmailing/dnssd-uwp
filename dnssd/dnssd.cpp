@@ -44,7 +44,7 @@ namespace dnssd_uwp
         return result;
     }
 
-
+#ifdef DNSSDUWP_USE_LEGACY
     DNSSD_API DnssdErrorType dnssd_create_service_watcher(const char* serviceName, DnssdServiceChangedCallback callback, DnssdServiceWatcherPtr *serviceWatcher)
     {
         DnssdErrorType result = DNSSD_NO_ERROR;
@@ -108,7 +108,7 @@ namespace dnssd_uwp
             delete wrapper;
         }
     }
-
+#endif
 
 	DNSSD_API DnssdErrorType dnssd_register_service(const char* service_name, const char* service_type, const char* domain, uint16_t port, DnssdRegisterCallback callback_function, void* user_data, DnssdServicePtr* out_service_ptr)
     {

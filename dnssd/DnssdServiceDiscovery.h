@@ -19,6 +19,11 @@
 
 #include "dnssd_uwp.h"
 
+#ifdef DNSSDUWP_USE_LEGACY
+#else
+#include "DnssdUtils.h"
+#endif
+
 // I tried to use batched updates since we have something called OnServiceEnumerationCompleted
 // which implied to me that we could send a 'more coming' flag like on some other platforms.
 // But when I tried it, I seem to get an initial burst of events, and then therer is a 15-30 second wait before the completed callback happens.

@@ -9,6 +9,7 @@
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 // THE CODE OR THE USE OR OTHER DEALINGS IN THE CODE.
 // ******************************************************************
+#ifdef DNSSDUWP_USE_LEGACY
 
 #include "DnssdServiceWatcher.h"
 #include "DnssdUtils.h"
@@ -238,4 +239,5 @@ namespace dnssd_uwp
     }
 }
 
+#endif
 

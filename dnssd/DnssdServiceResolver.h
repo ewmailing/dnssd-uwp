@@ -19,7 +19,10 @@
 #include <set>
 
 #include "dnssd_uwp.h"
-
+#ifdef DNSSDUWP_USE_LEGACY
+#else
+#include "DnssdUtils.h"
+#endif
 
 namespace dnssd_uwp
 {
