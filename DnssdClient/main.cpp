@@ -197,17 +197,39 @@ void OnResolveCallback(DnssdServiceResolverPtr service_resolver, const char* ser
 	wcout << L"full_name: " << w_full_name << endl;
 	wcout << L"host_target: " << w_host_target << endl;
 	wcout << L"port: " << port << endl;
+	wcout << L"txt_record_length: " << txt_record_length << endl;
+
 	if(txt_record == NULL)
 	{
 		wcout << L"txt_record: NULL" << endl;
 	}
 	else
 	{
-		wchar_t* w_txt_record = BlurrrPlatformWindows_CreateWINfromUTF8String(txt_record);
-		wcout << L"txt_record: " << w_txt_record << endl;
-		free(w_txt_record);
+		char* tmp_txt_record_buffer = (char*)calloc(txt_record_length, sizeof(char));
+		size_t i = 0;
+		size_t j = 0;
+		for(i=0; (i<256) && (i<txt_record_length); )
+		{
+			size_t next_str_len = (size_t)txt_record[i];
+			wcout << L"next_str_len: " << next_str_len << endl;
+
+			i++;
+			for(j=0; j<next_str_len; )
+			{
+				tmp_txt_record_buffer[j] = txt_record[i];
+				i++;
+				j++;
+			}
+			tmp_txt_record_buffer[j] = '\0'; // so we can print it
+			wchar_t* w_txt_record = BlurrrPlatformWindows_CreateWINfromUTF8String(tmp_txt_record_buffer);
+			wcout << L"txt_record: " << w_txt_record << endl;
+			free(w_txt_record);
+
+		}
+
+		
+		free(tmp_txt_record_buffer);
 	}
-	wcout << L"txt_record_length: " << txt_record_length << endl;
 
 //	DNS_STATUS status = DnsQuery_W(L"MyServiceName._daap._tcp.local.", DNS_TYPE_A, DNS_QUERY_STANDARD, NULL, NULL, NULL);
 	DNS_STATUS status = DnsQuery_W(w_full_name, DNS_TYPE_A, DNS_QUERY_STANDARD, NULL, NULL, NULL);

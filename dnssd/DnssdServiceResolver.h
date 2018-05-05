@@ -57,7 +57,7 @@ namespace dnssd_uwp
 		uint16_t networkPort;
 		Platform::String^ mHostTarget;
 //		Platform::String^ mTxtRecord;
-		std::string mCombinedTxtRecord;
+		std::vector<char> mCombinedTxtRecord;
 
 		std::set<std::string> mIpAddresses;
 

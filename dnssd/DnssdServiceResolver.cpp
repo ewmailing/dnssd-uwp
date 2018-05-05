@@ -197,7 +197,7 @@ namespace dnssd_uwp
 		auto text_attributes_collection = safe_cast<Platform::IBoxArray<Platform::String^>^>(props->Lookup("System.Devices.Dnssd.TextAttributes"));
 
 	
-		std::string combined_txt_record;
+		std::vector<char> combined_txt_record;
 		// It looks like Bonjour is separating multiple entries with the number of bytes of the following string.
 		// https://developer.apple.com/library/mac/qa/qa1306/_index.html
 
@@ -205,8 +205,11 @@ namespace dnssd_uwp
 		{
 			Platform::String^ platform_string = text_attributes_collection->Value->get(i);
 			std::string kv_string = PlatformStringToString(platform_string);
-			std::string byte_string = std::to_string(kv_string.length());
-			combined_txt_record += (byte_string + kv_string);
+			std::vector<char> kv_vector = std::vector<char>(kv_string.begin(), kv_string.end());
+			combined_txt_record.push_back(static_cast<char>(kv_string.length()));
+			combined_txt_record.insert( std::end(combined_txt_record), std::begin(kv_vector), std::end(kv_vector) );
+//			std::string byte_string = std::to_string(kv_string.length());
+//			combined_txt_record += (byte_string + kv_string);
 
 		}
 #if 0
@@ -421,10 +424,10 @@ namespace dnssd_uwp
 
 			const char* txt_record = NULL;
 			size_t txt_record_length = 0;
-			if(info->mCombinedTxtRecord.length() > 0)
+			if(info->mCombinedTxtRecord.size() > 0)
 			{
-				txt_record_length = info->mCombinedTxtRecord.length();
-				txt_record = info->mCombinedTxtRecord.c_str();
+				txt_record_length = info->mCombinedTxtRecord.size();
+				txt_record = info->mCombinedTxtRecord.data();
 			}
 
 			//	    typedef void(*DnssdServiceResolverChangedCallback) (DnssdServiceResolverPtr service_resolver, const char* full_name, const char* host_target, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdErrorType error_code, void* user_data);
