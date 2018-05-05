@@ -307,7 +307,7 @@ _setmode(_fileno(stdout), _O_U16TEXT);
         goto cleanup;
     }
 #endif
-#if 1
+#if 0
 //    result = gDnssdClient->InitializeDnssdService(gServiceName, gServicePort);
 //    result = gDnssdClient->RegisterDnssdService("MyServiceName", gServiceName, NULL, gNetworkPort, NULL, 0, OnRegisterCallback, NULL);
 	char txt_record[] = "\xfMyKey1=MyValue1\xfMyKey2=MyValue2";
@@ -320,7 +320,7 @@ _setmode(_fileno(stdout), _O_U16TEXT);
     }
 #endif // 0
 
-#if 0
+#if 1
 	result = gDnssdClient->StartResolve("MyServiceName", gServiceType, NULL, OnResolveCallback, NULL);
 //	result = gDnssdClient->StartResolve(gResolveServiceNameUTF8, gServiceType, NULL, OnResolveCallback, NULL);
 	if (result != DNSSD_NO_ERROR)

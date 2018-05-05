@@ -105,6 +105,12 @@ namespace dnssd_uwp
         void UpdateDnssdService(DnssdServiceUpdateType type, Windows::Foundation::Collections::IMapView<Platform::String^, Platform::Object^>^ props, Platform::String^ serviceId);
         void OnDnssdServiceUpdated(DnssdServiceResolverInstance^ info, const std::string& ip_address);
 
+		Windows::Foundation::EventRegistrationToken mDelegateAdded;
+		Windows::Foundation::EventRegistrationToken mDelegateRemoved;
+		Windows::Foundation::EventRegistrationToken mDelegateUpdated;
+		Windows::Foundation::EventRegistrationToken mDelegateCompleted;
+		Windows::Foundation::EventRegistrationToken mDelegateStopped;
+
         Windows::Devices::Enumeration::DeviceWatcher^ mServiceWatcher;
 
         DnssdServiceResolverChangedCallback mDnssdServiceChangedCallback;
@@ -118,6 +124,7 @@ namespace dnssd_uwp
 
 
 		bool mRunning;
+		bool mIsIniting;
 
 		DnssdServiceResolverWrapper* mWrapperPtr;
     };

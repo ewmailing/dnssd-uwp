@@ -108,6 +108,18 @@ namespace dnssd_uwp
         void OnServiceEnumerationStopped(Windows::Devices::Enumeration::DeviceWatcher^ sender, Platform::Object^ args);
         void UpdateDnssdService(DnssdServiceUpdateType type, Windows::Foundation::Collections::IMapView<Platform::String^, Platform::Object^>^ props, Platform::String^ serviceId);
         void OnDnssdServiceUpdated(DnssdServiceDiscoveryInstance^ info);
+		/*
+		Windows::Foundation::TypedEventHandler<Windows::Devices::Enumeration::DeviceWatcher ^, Windows::Devices::Enumeration::DeviceInformation ^>^ mDelegateAdded;
+		Windows::Foundation::TypedEventHandler<Windows::Devices::Enumeration::DeviceWatcher ^, Windows::Devices::Enumeration::DeviceInformationUpdate ^>^ mDelegateRemoved;
+		Windows::Foundation::TypedEventHandler<Windows::Devices::Enumeration::DeviceWatcher ^, Windows::Devices::Enumeration::DeviceInformationUpdate ^>^ mDelegateUpdated;
+		Windows::Foundation::TypedEventHandler<Windows::Devices::Enumeration::DeviceWatcher ^, Platform::Object ^>^ mDelegateComplated;
+		Windows::Foundation::TypedEventHandler<Windows::Devices::Enumeration::DeviceWatcher ^, Platform::Object ^>^ mDelegateStopped;
+		*/
+		Windows::Foundation::EventRegistrationToken mDelegateAdded;
+		Windows::Foundation::EventRegistrationToken mDelegateRemoved;
+		Windows::Foundation::EventRegistrationToken mDelegateUpdated;
+		Windows::Foundation::EventRegistrationToken mDelegateCompleted;
+		Windows::Foundation::EventRegistrationToken mDelegateStopped;
 
 		// helper for callback flags: 1 is added, 0 is removed
 		uint32_t ComputeFlag(DnssdServiceUpdateType updateType, bool more_coming = false);
@@ -127,6 +139,7 @@ namespace dnssd_uwp
 #endif
 
 		bool mRunning;
+		bool mIsIniting;
 
 		DnssdServiceDiscoveryWrapper* mWrapperPtr;
     };

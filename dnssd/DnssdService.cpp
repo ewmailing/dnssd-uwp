@@ -38,6 +38,7 @@ DnssdService::DnssdService(const std::string& service_name, const std::string& s
 	: mTxtRecordVector(txt_record_length),
 	mTxtRecordLength(txt_record_length)
 {
+	mIsIniting = true;
 	mServiceNameStr = service_name;
 	mServiceTypeStr = service_type;
 
@@ -338,6 +339,7 @@ DnssdErrorType DnssdService::StartRegistration()
 			}
 		}
 
+		mIsIniting = false;
 
 	}
 	);
@@ -352,6 +354,9 @@ void DnssdService::Stop()
 {
     if (mSocket != nullptr)
     {
+		while(mIsIniting)
+		{
+		}
         mSocket->ConnectionReceived -= mSocketToken;
         delete mSocket;
         mSocket = nullptr;

@@ -165,7 +165,14 @@ namespace dnssd_uwp
 		if(nullptr != wrapper_ptr)
 		{
 			DnssdServiceWrapper* wrapper = (DnssdServiceWrapper*)wrapper_ptr;
-			delete wrapper;
+			try
+			{
+				delete wrapper;
+			}
+			catch(...)
+			{
+				OutputDebugStringW(L"Caught exception in dnssd_unregister_service");
+			}
 		}
 	}
 
@@ -224,7 +231,14 @@ namespace dnssd_uwp
 		if(nullptr != wrapper_ptr)
 		{
 			DnssdServiceDiscoveryWrapper* wrapper = (DnssdServiceDiscoveryWrapper*)wrapper_ptr;
-			delete wrapper;
+			try
+			{
+				delete wrapper;
+			}
+			catch(...)
+			{
+				OutputDebugStringW(L"Caught exception in dnssd_stop_discovery");
+			}
 		}
 	}
 
@@ -282,7 +296,14 @@ namespace dnssd_uwp
 		if(nullptr != wrapper_ptr)
 		{
 			DnssdServiceResolverWrapper* wrapper = (DnssdServiceResolverWrapper*)wrapper_ptr;
-			delete wrapper;
+			try
+			{
+				delete wrapper;
+			}
+			catch(...)
+			{
+				OutputDebugStringW(L"Caught exception in dnssd_stop_resolve");
+			}
 		}
 	}
 }
