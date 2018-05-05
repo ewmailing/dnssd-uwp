@@ -63,6 +63,9 @@ namespace dnssd_uwp
     typedef DnssdErrorType(__cdecl *DnssdInitializeFunc)();
     DNSSD_API DnssdErrorType __cdecl dnssd_initialize();
 
+	typedef DnssdErrorType(__cdecl *DnssdUninitializeFunc)();
+    DNSSD_API void __cdecl dnssd_uninitialize();
+
 #ifdef DNSSDUWP_USE_LEGACY
     // dnssd service watcher functions
 
@@ -79,9 +82,9 @@ namespace dnssd_uwp
     // dnssd service create function
     typedef  DnssdErrorType(__cdecl *DnssdCreateServiceFunc)(const char* serviceName, const char* port, DnssdServicePtr *service);
     DNSSD_API DnssdErrorType __cdecl dnssd_create_service(const char* serviceName, const char* port, DnssdServicePtr *service);
-#endif
     typedef void(__cdecl *DnssdFreeServiceFunc)(DnssdServicePtr service);
     DNSSD_API void __cdecl dnssd_free_service(DnssdServicePtr service);
+#endif
 
 
     // dnssd register callback

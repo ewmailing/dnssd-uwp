@@ -44,6 +44,15 @@ namespace dnssd_uwp
         return result;
     }
 
+	DNSSD_API void dnssd_uninitialize()
+    {
+		if(mInitialized)
+		{
+			::Windows::Foundation::Uninitialize();
+			mInitialized = false;
+		}
+	}
+
 #ifdef DNSSDUWP_USE_LEGACY
     DNSSD_API DnssdErrorType dnssd_create_service_watcher(const char* serviceName, DnssdServiceChangedCallback callback, DnssdServiceWatcherPtr *serviceWatcher)
     {

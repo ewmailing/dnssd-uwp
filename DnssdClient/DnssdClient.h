@@ -40,6 +40,7 @@ namespace dnssd_uwp
 	private:
         // Dnssd DLL function pointers
         DnssdInitializeFunc             mDnssdInitFunc;
+        DnssdUninitializeFunc             mDnssdUninitFunc;
 #ifdef DNSSDUWP_USE_LEGACY
         DnssdCreateServiceWatcherFunc   mDnssdCreateServiceWatcherFunc;
         DnssdFreeServiceWatcherFunc     mDnssdFreeServiceWatcherFunc;

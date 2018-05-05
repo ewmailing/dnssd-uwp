@@ -139,7 +139,6 @@ namespace dnssd_uwp
 #endif
 
 		bool mRunning;
-		bool mIsIniting;
 
 		DnssdServiceDiscoveryWrapper* mWrapperPtr;
     };

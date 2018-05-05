@@ -65,6 +65,8 @@ DnssdClient::~DnssdClient()
 		mDnssdStopResolveFunc(mDnssdServiceResolverPtr);
 	}
 
+	mDnssdUninitFunc();
+
     //Free the library:
     if (mDllHandle)
     {
@@ -89,6 +91,8 @@ DnssdErrorType DnssdClient::InitializeDnssd()
     // GetDnssd DLL function pointers. Error checking needs to be added!
     //Get pointer to the DnssdInitializeFunc function using GetProcAddress:  
     mDnssdInitFunc = reinterpret_cast<DnssdInitializeFunc>(::GetProcAddress(mDllHandle, "dnssd_initialize"));
+
+    mDnssdUninitFunc = reinterpret_cast<DnssdUninitializeFunc>(::GetProcAddress(mDllHandle, "dnssd_uninitialize"));
 
 #ifdef DNSSDUWP_USE_LEGACY
 

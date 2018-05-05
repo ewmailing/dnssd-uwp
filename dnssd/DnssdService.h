@@ -61,7 +61,6 @@ namespace dnssd_uwp
 		uint16_t mTxtRecordLength;
 
 		DnssdServiceWrapper* mWrapperPtr;
-		bool mIsIniting;
 
     };
 

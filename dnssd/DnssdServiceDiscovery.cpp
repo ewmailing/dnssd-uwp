@@ -37,7 +37,6 @@ namespace dnssd_uwp
         : mDnssdServiceChangedCallback(callback),
 		mUserData(user_data)
         , mRunning(false)
-		, mIsIniting(true)
 		, mWrapperPtr(nullptr)
     {
         mServiceType = StringToPlatformString(service_type);
@@ -55,9 +54,6 @@ namespace dnssd_uwp
     {
         if (mServiceWatcher)
         {
-			while(mIsIniting)
-			{
-			}
 			mServiceWatcher->Added -= mDelegateAdded;
             mServiceWatcher->Removed -= mDelegateRemoved;
             mServiceWatcher->Updated -= mDelegateUpdated;
@@ -107,27 +103,11 @@ namespace dnssd_uwp
             mServiceWatcher = DeviceInformation::CreateWatcher(aqsQueryString, propertyKeys, DeviceInformationKind::AssociationEndpointService);
 
             // wire up event handlers
-//			TypedEventHandler<DeviceWatcher ^, DeviceInformation ^>^ added_delegate = ref new TypedEventHandler<DeviceWatcher ^, DeviceInformation ^>(this, &DnssdServiceDiscovery::OnServiceAdded);
-//            mServiceWatcher->Added += added_delegate;
-#if 1
-mDelegateAdded = mServiceWatcher->Added += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformation ^>(this, &DnssdServiceDiscovery::OnServiceAdded);
-mDelegateRemoved = mServiceWatcher->Removed += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformationUpdate ^>(this, &DnssdServiceDiscovery::OnServiceRemoved);
-mDelegateUpdated = mServiceWatcher->Updated += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformationUpdate ^>(this, &DnssdServiceDiscovery::OnServiceUpdated);
-mDelegateCompleted = mServiceWatcher->EnumerationCompleted += ref new Windows::Foundation::TypedEventHandler<DeviceWatcher ^, Platform::Object ^>(this, &DnssdServiceDiscovery::OnServiceEnumerationCompleted);
-mDelegateStopped = mServiceWatcher->Stopped += ref new Windows::Foundation::TypedEventHandler<DeviceWatcher ^, Platform::Object ^>(this, &DnssdServiceDiscovery::OnServiceEnumerationStopped);
-#else
-		mDelegateAdded = ref new TypedEventHandler<DeviceWatcher ^, DeviceInformation ^>(this, &DnssdServiceDiscovery::OnServiceAdded);
-		mDelegateRemoved = ref new TypedEventHandler<DeviceWatcher ^, DeviceInformationUpdate ^>(this, &DnssdServiceDiscovery::OnServiceRemoved);
-		mDelegateUpdated = ref new TypedEventHandler<DeviceWatcher ^, DeviceInformationUpdate ^>(this, &DnssdServiceDiscovery::OnServiceUpdated);;
-		mDelegateComplated = ref new Windows::Foundation::TypedEventHandler<DeviceWatcher ^, Platform::Object ^>(this, &DnssdServiceDiscovery::OnServiceEnumerationCompleted);
-		mDelegateStopped = ref new Windows::Foundation::TypedEventHandler<DeviceWatcher ^, Platform::Object ^>(this, &DnssdServiceDiscovery::OnServiceEnumerationStopped);;
-
-            mServiceWatcher->Added += mDelegateAdded;
-            mServiceWatcher->Removed += mDelegateRemoved;
-            mServiceWatcher->Updated += mDelegateUpdated;
-            mServiceWatcher->EnumerationCompleted += mDelegateComplated;
-            mServiceWatcher->Stopped += mDelegateStopped;
-#endif
+			mDelegateAdded = mServiceWatcher->Added += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformation ^>(this, &DnssdServiceDiscovery::OnServiceAdded);
+			mDelegateRemoved = mServiceWatcher->Removed += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformationUpdate ^>(this, &DnssdServiceDiscovery::OnServiceRemoved);
+			mDelegateUpdated = mServiceWatcher->Updated += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformationUpdate ^>(this, &DnssdServiceDiscovery::OnServiceUpdated);
+			mDelegateCompleted = mServiceWatcher->EnumerationCompleted += ref new Windows::Foundation::TypedEventHandler<DeviceWatcher ^, Platform::Object ^>(this, &DnssdServiceDiscovery::OnServiceEnumerationCompleted);
+			mDelegateStopped = mServiceWatcher->Stopped += ref new Windows::Foundation::TypedEventHandler<DeviceWatcher ^, Platform::Object ^>(this, &DnssdServiceDiscovery::OnServiceEnumerationStopped);
 
             // start watching for dnssd services
             mServiceWatcher->Start();
@@ -154,7 +134,7 @@ mDelegateStopped = mServiceWatcher->Stopped += ref new Windows::Foundation::Type
 		DnssdServiceDiscoveryWrapper* wrapper_ptr = mWrapperPtr;
 
 			// I don't think I am doing the task<> parameter correctly.
-		task.then([this, wrapper_ptr, service_type, domain, is_domain_null, discovery_callback, user_data](auto task_result)
+		task.then([wrapper_ptr, service_type, domain, is_domain_null, discovery_callback, user_data](auto task_result)
 //		task.then([task, this, service_type, discovery_callback, user_data](auto task_result)
 		{
 			const char* domain_c_str = NULL;
@@ -169,7 +149,6 @@ mDelegateStopped = mServiceWatcher->Stopped += ref new Windows::Foundation::Type
 //				task.get(); // will throw any exceptions from above task
 				task_result.get(); // will throw any exceptions from above task
 //				return DNSSD_NO_ERROR;
-				mIsIniting = false;
 
 			}
 			catch (Platform::Exception^ ex)
@@ -183,7 +162,6 @@ mDelegateStopped = mServiceWatcher->Stopped += ref new Windows::Foundation::Type
 					DNSSD_SERVICEWATCHER_INITIALIZATION_ERROR, 
 					user_data
 				);
-				mIsIniting = false;
 
 //				return DNSSD_SERVICEWATCHER_INITIALIZATION_ERROR;
 			}
