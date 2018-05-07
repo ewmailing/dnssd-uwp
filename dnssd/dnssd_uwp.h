@@ -43,6 +43,7 @@ extern "C" {
         DNSSD_DLL_MISSING_ERROR,                    // dnssd dll not found
         DNSSD_UNSPECIFIED_ERROR
     };
+    typedef enum DnssdErrorType DnssdErrorType;
 
     typedef void* DnssdServicePtr;
     typedef void* DnssdServiceDiscoveryPtr;
@@ -62,11 +63,11 @@ extern "C" {
     typedef DnssdServiceInfo* DnssdServiceInfoPtr;
 #endif
     // dnssd functions
-    typedef DnssdErrorType(__cdecl *DnssdInitializeFunc)();
-    DNSSD_API DnssdErrorType __cdecl dnssd_initialize();
+    typedef DnssdErrorType(__cdecl *DnssdInitializeFunc)(void);
+    DNSSD_API DnssdErrorType __cdecl dnssd_initialize(void);
 
-	typedef DnssdErrorType(__cdecl *DnssdUninitializeFunc)();
-    DNSSD_API void __cdecl dnssd_uninitialize();
+	typedef DnssdErrorType(__cdecl *DnssdUninitializeFunc)(void);
+    DNSSD_API void __cdecl dnssd_uninitialize(void);
 
 #ifdef DNSSDUWP_USE_LEGACY
     // dnssd service watcher functions

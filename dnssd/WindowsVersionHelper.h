@@ -58,27 +58,30 @@ namespace dnssd_uwp
         static const wchar_t kernel32[] = L"\\kernel32.dll";
         wchar_t path[MAX_PATH];
 
-        unsigned int n = GetSystemDirectory(path, MAX_PATH);
+        unsigned int n = GetSystemDirectoryW(path, MAX_PATH);
         memcpy_s(path + n, MAX_PATH, kernel32, sizeof(kernel32));
 
-        unsigned int size = GetFileVersionInfoSize(path, NULL);
+        unsigned int size = GetFileVersionInfoSizeW(path, NULL);
         if (size == 0)
         {
             return false;
         }
 
+		void* versionInfo = _alloca(size*sizeof(char));
+	
 	//	std::vector<char> verionInfo;
 	//	verionInfo.resize(size);
 	
-	//	BOOL result = GetFileVersionInfo(path, 0, size, verionInfo.data());
-		BOOL result = GetFileVersionInfo(path, 0, size, versionInfo);
-        if (!result || GetLastError() != S_OK)
-        {
-            return false;
-        }
+//	BOOL result = GetFileVersionInfo(path, 0, size, verionInfo.data());
+		BOOL result = GetFileVersionInfoW(path, 0, size, versionInfo);
+		if (!result || GetLastError() != S_OK)
+		{
+			return false;
+		}
 
-        VS_FIXEDFILEINFO *vinfo;
-		result = VerQueryValue(verionInfo, L"\\", (LPVOID *)&vinfo, &size);
+	VS_FIXEDFILEINFO *vinfo;
+//	result = VerQueryValue(verionInfo.data(), L"\\", (LPVOID *)&vinfo, &size);
+	result = VerQueryValueW(versionInfo, L"\\", (LPVOID *)&vinfo, &size);
         if (!result || size < sizeof(VS_FIXEDFILEINFO))
         {
             return false;
