@@ -67,16 +67,18 @@ namespace dnssd_uwp
             return false;
         }
 
-        std::vector<char> verionInfo;
-        verionInfo.resize(size);
-        BOOL result = GetFileVersionInfo(path, 0, size, verionInfo.data());
+	//	std::vector<char> verionInfo;
+	//	verionInfo.resize(size);
+	
+	//	BOOL result = GetFileVersionInfo(path, 0, size, verionInfo.data());
+		BOOL result = GetFileVersionInfo(path, 0, size, versionInfo);
         if (!result || GetLastError() != S_OK)
         {
             return false;
         }
 
         VS_FIXEDFILEINFO *vinfo;
-        result = VerQueryValue(verionInfo.data(), L"\\", (LPVOID *)&vinfo, &size);
+		result = VerQueryValue(verionInfo, L"\\", (LPVOID *)&vinfo, &size);
         if (!result || size < sizeof(VS_FIXEDFILEINFO))
         {
             return false;

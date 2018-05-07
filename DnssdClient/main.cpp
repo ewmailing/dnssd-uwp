@@ -20,7 +20,7 @@
 #include <assert.h>
 #include <memory>
 
-#define USING_APP_MANIFEST
+//#define USING_APP_MANIFEST
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
