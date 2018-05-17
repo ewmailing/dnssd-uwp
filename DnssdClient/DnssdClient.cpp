@@ -144,12 +144,12 @@ DnssdErrorType DnssdClient::InitializeDnssdService(const std::string& serviceNam
 }
 #endif
 
-DnssdErrorType DnssdClient::RegisterDnssdService(const std::string& service_name, const std::string& service_type, const char* domain, uint16_t network_port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data )
+DnssdErrorType DnssdClient::RegisterDnssdService(const std::string& service_name, const std::string& service_type, const char* domain, const char* host_name, uint16_t network_port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data )
 {
     // create a dns service 
 //    DnssdErrorType result = mDnssdCreateServiceFunc(serviceName.c_str(), port.c_str(), &mDnssdServicePtr);
     DnssdErrorType result = DNSSD_NO_ERROR;
-	result = mDnssdRegisterServiceFunc(service_name.c_str(), service_type.c_str(), domain, network_port, txt_record, txt_record_length, callback_function, user_data, &mDnssdServicePtr);
+	result = mDnssdRegisterServiceFunc(service_name.c_str(), service_type.c_str(), domain, host_name, network_port, txt_record, txt_record_length, callback_function, user_data, &mDnssdServicePtr);
 
     return result;
 }

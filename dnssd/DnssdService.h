@@ -33,7 +33,7 @@ namespace dnssd_uwp
 		DnssdService(const std::string& name, const std::string& port);
         DnssdErrorType Start();
 #endif
-        DnssdService(const std::string& service_name, const std::string& service_type, const char* domain, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data);
+        DnssdService(const std::string& service_name, const std::string& service_type, const char* domain, const char* host_name, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data);
         DnssdErrorType StartRegistration();
         void Stop();
 
@@ -48,6 +48,7 @@ namespace dnssd_uwp
         Platform::String^ mServiceType;
         Platform::String^ mDomain;
         Platform::String^ mPort;
+        Windows::Networking::HostName^ mHostName;
         Windows::Networking::ServiceDiscovery::Dnssd::DnssdServiceInstance^ mService;
         Windows::Networking::Sockets::StreamSocketListener^ mSocket;
         Windows::Foundation::EventRegistrationToken mSocketToken;

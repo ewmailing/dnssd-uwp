@@ -307,12 +307,12 @@ _setmode(_fileno(stdout), _O_U16TEXT);
         goto cleanup;
     }
 #endif
-#if 0
+#if 1
 //    result = gDnssdClient->InitializeDnssdService(gServiceName, gServicePort);
-//    result = gDnssdClient->RegisterDnssdService("MyServiceName", gServiceName, NULL, gNetworkPort, NULL, 0, OnRegisterCallback, NULL);
+//    result = gDnssdClient->RegisterDnssdService("MyServiceName", gServiceName, NULL, NULL, gNetworkPort, NULL, 0, OnRegisterCallback, NULL);
 	char txt_record[] = "\xfMyKey1=MyValue1\xfMyKey2=MyValue2";
 	uint16_t txt_record_length = (uint16_t)strlen(txt_record);
-    result = gDnssdClient->RegisterDnssdService("MyServiceName", gServiceName, NULL, gNetworkPort, txt_record, txt_record_length, OnRegisterCallback, NULL);
+    result = gDnssdClient->RegisterDnssdService("MyServiceName", gServiceName, NULL, NULL, gNetworkPort, txt_record, txt_record_length, OnRegisterCallback, NULL);
     if (result != DNSSD_NO_ERROR)
     {
         wcout << L"Unable to initialize dnssd service" << endl;

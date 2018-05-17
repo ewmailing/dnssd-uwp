@@ -34,7 +34,7 @@ DnssdService::DnssdService(const std::string& name, const std::string& port)
 }
 #endif
 
-DnssdService::DnssdService(const std::string& service_name, const std::string& service_type, const char* domain, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data)
+DnssdService::DnssdService(const std::string& service_name, const std::string& service_type, const char* domain, const char* host_name, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data)
 	: mTxtRecordVector(txt_record_length),
 	mTxtRecordLength(txt_record_length)
 {
@@ -51,8 +51,28 @@ DnssdService::DnssdService(const std::string& service_name, const std::string& s
 	{
 		mDomain = L"local";
 	}
-		
 
+	if((host_name != NULL) && (host_name[0] != '\0'))
+	{
+		// documentation says:
+		// The constructor will fail if the hostName parameter is null or contains an empty string.
+		// I have no idea if it will fail under other circumstances like malformed IP-address.
+		// I also have no idea if this blocks. May need to move into Start() if it does.
+		try
+		{
+			Platform::String^ platform_string_host_name = StringToPlatformString(host_name);
+			HostName^ host = ref new HostName(platform_string_host_name);
+			mHostName = host;
+		}
+		catch(...)
+		{
+			mHostName = nullptr;
+		}
+	}
+	else
+	{
+		mHostName = nullptr;
+	}
 
 	mNetworkPort = port; // Do we want network or host order? Bonjour DNSService* does network, but I think everything else does host.
 	mRegisterCallback = callback_function;
@@ -166,31 +186,39 @@ DnssdErrorType DnssdService::StartRegistration()
         return DNSSD_SERVICE_ALREADY_EXISTS_ERROR;
     }
 
-    auto hostNames = NetworkInformation::GetHostNames();
-    HostName^ hostName = nullptr;
+	HostName^ hostName = mHostName;
 
-    // find first HostName of Type == HostNameType.DomainName && RawName contains "local"
-	std::wstring w_domain = std::wstring(mDomain->Data());
-    for (unsigned int i = 0; i < hostNames->Size; ++i)
-    {
-        HostName^ n = hostNames->GetAt(i);
-        if (n->Type == HostNameType::DomainName)
-        {
-            std::wstring temp(n->RawName->Data());
-//            auto found = temp.find(L"local");
-            auto found = temp.find(w_domain);
-            if (found != std::string::npos)
-            {
-                hostName = n;
-                break;
-            }
-        }
-    }
+	if(nullptr == mHostName)
+	{
+		auto hostNames = NetworkInformation::GetHostNames();
+
+		// find first HostName of Type == HostNameType.DomainName && RawName contains "local"
+		std::wstring w_domain = std::wstring(mDomain->Data());
+		for (unsigned int i = 0; i < hostNames->Size; ++i)
+		{
+			HostName^ n = hostNames->GetAt(i);
+			if (n->Type == HostNameType::DomainName)
+			{
+				std::wstring temp(n->RawName->Data());
+	//            auto found = temp.find(L"local");
+				auto found = temp.find(w_domain);
+				if (found != std::string::npos)
+				{
+					hostName = n;
+					break;
+				}
+			}
+		}
+	}
 
     if (hostName == nullptr)
     {
         return DNSSD_LOCAL_HOSTNAME_NOT_FOUND_ERROR;
     }
+	else
+	{
+		mHostName = hostName;
+	}
 #if 1
     auto task = create_task(create_async([this, hostName]
     {
