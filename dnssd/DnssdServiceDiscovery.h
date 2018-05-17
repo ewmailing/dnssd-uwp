@@ -16,6 +16,7 @@
 #include <functional>
 #include <map>
 #include <vector>
+#include <mutex>
 
 #include "dnssd_uwp.h"
 
@@ -76,6 +77,7 @@ namespace dnssd_uwp
 
     internal:
         DnssdErrorType Initialize();
+        void Stop();
 
         void RemoveDnssdServiceChangedCallback() {
             mDnssdServiceChangedCallback = nullptr;
@@ -138,6 +140,7 @@ namespace dnssd_uwp
         std::vector<DnssdDiscoveryCallbackInfo> mPendingServicesToCallback;
 #endif
 
+		std::mutex mLock;
 		bool mRunning;
 
 		DnssdServiceDiscoveryWrapper* mWrapperPtr;
@@ -165,6 +168,7 @@ namespace dnssd_uwp
 
 		virtual ~DnssdServiceDiscoveryWrapper()
 		{
+			mWatcher->Stop();
 			mWatcher = nullptr;
 		}
 

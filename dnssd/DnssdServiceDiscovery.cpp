@@ -171,8 +171,18 @@ namespace dnssd_uwp
 
     }
 
+	void DnssdServiceDiscovery::Stop()
+	{
+		mLock.lock();
+		mRunning = false;
+		mLock.unlock();
+	}
+
+
     void DnssdServiceDiscovery::UpdateDnssdService(DnssdServiceUpdateType type, Windows::Foundation::Collections::IMapView<Platform::String^, Platform::Object^>^ props, Platform::String^ serviceId)
     {
+		mLock.lock();
+
 //        auto box = safe_cast<Platform::IBoxArray<Platform::String^>^>(props->Lookup("System.Devices.IpAddress"));
 //        Platform::String^ host = box->Value->get(0);
 //        Platform::String^ port = props->Lookup("System.Devices.Dnssd.PortNumber")->ToString();
@@ -218,8 +228,12 @@ namespace dnssd_uwp
             // report the new service
             OnDnssdServiceUpdated(info);
         }
+
+		mLock.unlock();
+
     }
 
+	// don't lock because all the callers already locked
     void DnssdServiceDiscovery::OnDnssdServiceUpdated(DnssdServiceDiscoveryInstance^ info)
     {
 
@@ -244,7 +258,7 @@ namespace dnssd_uwp
 
 #endif
 
-        if (mDnssdServiceChangedCallback != nullptr)
+        if(mRunning && mDnssdServiceChangedCallback != nullptr)
         {
 //            mDnssdServiceChangedCallback(&wrapper, info->mType, &serviceInfo);
 #if DNSSDUWP_USE_BATCHED_UPDATES
@@ -292,6 +306,8 @@ namespace dnssd_uwp
         {
             return;
         }
+
+		mLock.lock();
 
         std::vector<Platform::String^> removedServices;
 
@@ -372,6 +388,8 @@ namespace dnssd_uwp
 
         // restart the service scan
         mServiceWatcher->Start();
+
+		mLock.unlock();
     }
 
 	uint32_t DnssdServiceDiscovery::ComputeFlag(DnssdServiceUpdateType updateType, bool more_coming)

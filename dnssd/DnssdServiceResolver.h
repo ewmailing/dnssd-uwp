@@ -17,6 +17,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <mutex>
 
 #include "dnssd_uwp.h"
 #ifdef DNSSDUWP_USE_LEGACY
@@ -72,6 +73,7 @@ namespace dnssd_uwp
 
     internal:
         DnssdErrorType Initialize();
+		void Stop();
 
         void RemoveDnssdServiceChangedCallback() {
             mDnssdServiceChangedCallback = nullptr;
@@ -120,7 +122,7 @@ namespace dnssd_uwp
         Platform::String^ mServiceName;
         Platform::String^ mServiceType;
         Platform::String^ mDomain;
-
+		std::mutex mLock;
 
 
 		bool mRunning;
@@ -139,6 +141,7 @@ namespace dnssd_uwp
 
 		virtual ~DnssdServiceResolverWrapper()
 		{
+			mWatcher->Stop();
 			mWatcher = nullptr;
 		}
 

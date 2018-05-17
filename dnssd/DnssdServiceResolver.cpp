@@ -180,8 +180,17 @@ namespace dnssd_uwp
 
     }
 
+	void DnssdServiceResolver::Stop()
+	{
+		mLock.lock();
+		mRunning = false;
+		mLock.unlock();
+	}
+
     void DnssdServiceResolver::UpdateDnssdService(DnssdServiceUpdateType type, Windows::Foundation::Collections::IMapView<Platform::String^, Platform::Object^>^ props, Platform::String^ serviceId)
     {
+		mLock.lock();
+
 		// FIXME: I think we need to iterate through each IpAddress and do a callback for each. (e.g. user needs both IPv4 and IPv6)
         auto box = safe_cast<Platform::IBoxArray<Platform::String^>^>(props->Lookup("System.Devices.IpAddress"));
 		Platform::String^ host;
@@ -365,8 +374,12 @@ namespace dnssd_uwp
 			}
 			// else, we have no IP addresses which implies the service went away. We should not do a callback for that case.
         }
+
+		mLock.unlock();
+
     }
 
+	// don't lock because all the callers already locked
     void DnssdServiceResolver::OnDnssdServiceUpdated(DnssdServiceResolverInstance^ info, const std::string& ip_address)
     {
 
@@ -439,23 +452,27 @@ namespace dnssd_uwp
 
 			//	    typedef void(*DnssdServiceResolverChangedCallback) (DnssdServiceResolverPtr service_resolver, const char* full_name, const char* host_target, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdErrorType error_code, void* user_data);
 
-			mDnssdServiceChangedCallback(
-				(DnssdServiceResolverPtr)mWrapperPtr, 
-//				full_name.c_str(),
-				service_name.c_str(),
-				service_type.c_str(),
-				domain.c_str(),
-				dns_full_name,
-				ip_address.c_str(),
-				port,
-				txt_record,
-				txt_record_length,
-				DNSSD_NO_ERROR,
-				mUserData
-			);
+			if(mRunning)
+			{
+				mDnssdServiceChangedCallback(
+					(DnssdServiceResolverPtr)mWrapperPtr, 
+	//				full_name.c_str(),
+					service_name.c_str(),
+					service_type.c_str(),
+					domain.c_str(),
+					dns_full_name,
+					ip_address.c_str(),
+					port,
+					txt_record,
+					txt_record_length,
+					DNSSD_NO_ERROR,
+					mUserData
+				);
+			}
 			free(dns_full_name);
 
         }
+
     }
 
     void DnssdServiceResolver::OnServiceAdded(DeviceWatcher^ sender, DeviceInformation^ args)
@@ -487,6 +504,8 @@ namespace dnssd_uwp
         {
             return;
         }
+
+		mLock.lock();
 
         std::vector<Platform::String^> removedServices;
 
@@ -522,6 +541,8 @@ namespace dnssd_uwp
 
         // restart the service scan
         mServiceWatcher->Start();
+
+		mLock.unlock();
     }
 }
 
