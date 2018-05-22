@@ -30,7 +30,7 @@ namespace dnssd_uwp
         DnssdErrorType InitializeDnssdServiceWatcher(const std::string& serviceName, const std::string& port, DnssdServiceChangedCallback callback);
         DnssdErrorType InitializeDnssdService(const std::string& serviceName, const std::string& port);
 #endif
-		DnssdErrorType RegisterDnssdService(const std::string& service_name, const std::string& service_type, const char* domain, const char* host_name, uint16_t network_port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data);
+		DnssdErrorType RegisterDnssdService(const char* service_name, const char* service_type, const char* domain, const char* host_name, uint16_t network_port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data);
 		void UnregisterDnssdService();
 		DnssdErrorType StartDiscovery(const std::string& service_type, const char* domain, DnssdServiceDiscoveryChangedCallback callback_function, void* user_data);
 		void StopDiscovery();

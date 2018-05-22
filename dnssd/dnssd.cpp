@@ -128,7 +128,7 @@ namespace dnssd_uwp
 	DNSSD_API DnssdErrorType dnssd_register_service(const char* service_name, const char* service_type, const char* domain, const char* host_name, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data, DnssdServicePtr* out_service_ptr)
     {
         DnssdErrorType result = DNSSD_NO_ERROR;
-		if( (NULL == service_type) || (NULL == service_name) )
+		if( (NULL == service_type) )
 		{
 			result = DNSSD_INVALID_PARAMETER_ERROR;
 			if(out_service_ptr != NULL)
@@ -141,7 +141,7 @@ namespace dnssd_uwp
   //      *service = nullptr;
 
 //        auto s = ref new DnssdService(service_name, service_type, port, callback_function, user_data);
-        auto s = ref new DnssdService(std::string(service_name), std::string(service_type), domain, host_name, port, txt_record, txt_record_length, callback_function, user_data);
+        auto s = ref new DnssdService(service_name, service_type, domain, host_name, port, txt_record, txt_record_length, callback_function, user_data);
 		// It appears we need to create a wrapper object to keep the ref rooted/counted, otherwise I think the object goes away.
 		auto wrapper = new DnssdServiceWrapper(s);
 		// The problem with having a wrapper object is that all the callbacks original inside the original class.

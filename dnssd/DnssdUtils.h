@@ -23,6 +23,8 @@ namespace dnssd_uwp
     Platform::String^ StringToPlatformString(const std::string& s);
     std::string PlatformStringToString(Platform::String^ s);
     std::string PlatformStringToString2(Platform::String^ s);
+	char* CreateUTF8fromWStr(const wchar_t* input_wstr);
+
 
 #ifdef DNSSDUWP_USE_LEGACY
 #else

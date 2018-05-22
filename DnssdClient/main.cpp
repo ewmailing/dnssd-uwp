@@ -29,7 +29,8 @@ using namespace dnssd_uwp;
 
 CRITICAL_SECTION gCriticalSection;
 
-static const std::string gServiceName = "_daap._tcp"; // This is misnamed
+//static const std::string gServiceName = "_daap._tcp"; // This is misnamed
+static const char* gServiceName = "_daap._tcp"; // This is misnamed
 static const std::string gServiceType = "_daap._tcp";
 static const std::string gServicePort = "3689";
 //static const char gResolveServiceNameUTF8[] = "Eric Wing\xe2\x80\x99 Music";
@@ -312,7 +313,8 @@ _setmode(_fileno(stdout), _O_U16TEXT);
 //    result = gDnssdClient->RegisterDnssdService("MyServiceName", gServiceName, NULL, NULL, gNetworkPort, NULL, 0, OnRegisterCallback, NULL);
 	char txt_record[] = "\xfMyKey1=MyValue1\xfMyKey2=MyValue2";
 	uint16_t txt_record_length = (uint16_t)strlen(txt_record);
-    result = gDnssdClient->RegisterDnssdService("MyServiceName", gServiceName, NULL, NULL, gNetworkPort, txt_record, txt_record_length, OnRegisterCallback, NULL);
+//    result = gDnssdClient->RegisterDnssdService("MyServiceName", gServiceName, NULL, NULL, gNetworkPort, txt_record, txt_record_length, OnRegisterCallback, NULL);
+    result = gDnssdClient->RegisterDnssdService(NULL, gServiceName, NULL, NULL, gNetworkPort, txt_record, txt_record_length, OnRegisterCallback, NULL);
     if (result != DNSSD_NO_ERROR)
     {
         wcout << L"Unable to initialize dnssd service" << endl;

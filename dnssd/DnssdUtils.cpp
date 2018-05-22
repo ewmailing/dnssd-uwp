@@ -72,6 +72,23 @@ namespace dnssd_uwp
         return stringUtf8;
     }
 
+	char* CreateUTF8fromWStr(const wchar_t* input_wstr)
+	{
+		if(NULL == input_wstr)
+		{
+			return NULL;
+		}
+		int wstr_len = (int)wcslen(input_wstr);
+		int num_chars = WideCharToMultiByte(CP_UTF8, 0, input_wstr, wstr_len, NULL, 0, NULL, NULL);
+		char* output_utf8str = (char*)malloc((num_chars + 1) * sizeof(char));
+		if(output_utf8str)
+		{
+			WideCharToMultiByte(CP_UTF8, 0, input_wstr, wstr_len, output_utf8str, num_chars, NULL, NULL);
+			output_utf8str[num_chars] = '\0';
+		}
+		return output_utf8str;
+	}
+
 }
 
 

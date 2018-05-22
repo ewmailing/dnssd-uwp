@@ -34,14 +34,37 @@ DnssdService::DnssdService(const std::string& name, const std::string& port)
 }
 #endif
 
-DnssdService::DnssdService(const std::string& service_name, const std::string& service_type, const char* domain, const char* host_name, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data)
+DnssdService::DnssdService(const char* service_name, const char* service_type, const char* domain, const char* host_name, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data)
 	: mTxtRecordVector(txt_record_length),
 	mTxtRecordLength(txt_record_length)
 {
-	mServiceNameStr = service_name;
-	mServiceTypeStr = service_type;
+	if((NULL == service_name) || (service_name[0] == '\0'))
+	{
+		wchar_t computer_name_buffer[MAX_COMPUTERNAME_LENGTH + 1];
+		DWORD buf_size = MAX_COMPUTERNAME_LENGTH;
+		BOOL ret_flag = GetComputerNameW(computer_name_buffer, &buf_size);
+		if(ret_flag)
+		{
+			char* default_service_name = CreateUTF8fromWStr(computer_name_buffer);
+			mServiceNameStr = std::string(default_service_name);
+			mServiceName = StringToPlatformString(default_service_name);
+			free(default_service_name);
+		}
+		else
+		{
+			mServiceNameStr = std::string("My Service");
+			mServiceName = StringToPlatformString("My Service");
+		}
+	}
+	else
+	{
+		mServiceNameStr = std::string(service_name);
+		mServiceName = StringToPlatformString(service_name);
+	}
 
-	mServiceName = StringToPlatformString(service_name);
+
+
+	mServiceTypeStr = service_type;
 	mServiceType = StringToPlatformString(service_type);
 	if(domain != NULL)
 	{

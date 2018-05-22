@@ -33,7 +33,7 @@ namespace dnssd_uwp
 		DnssdService(const std::string& name, const std::string& port);
         DnssdErrorType Start();
 #endif
-        DnssdService(const std::string& service_name, const std::string& service_type, const char* domain, const char* host_name, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data);
+        DnssdService(const char* service_name, const char* service_type, const char* domain, const char* host_name, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdRegisterCallback callback_function, void* user_data);
         DnssdErrorType StartRegistration();
         void Stop();
 
