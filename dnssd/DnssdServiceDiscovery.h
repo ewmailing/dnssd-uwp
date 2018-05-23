@@ -101,7 +101,11 @@ namespace dnssd_uwp
 		{
 			return mWrapperPtr;
 		}
-
+		void MarkForDeletion()
+		{
+			mIsMarkedForDeletion = true;
+			Stop();
+		}
     private:
         void OnServiceAdded(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformation^ args);
         void OnServiceRemoved(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformationUpdate^ args);
@@ -142,6 +146,7 @@ namespace dnssd_uwp
 
 		std::recursive_mutex mLock;
 		bool mRunning;
+		bool mIsMarkedForDeletion;
 
 		DnssdServiceDiscoveryWrapper* mWrapperPtr;
     };
@@ -162,7 +167,8 @@ namespace dnssd_uwp
     {
     public:
         DnssdServiceDiscoveryWrapper(DnssdServiceDiscovery ^ watcher)
-            : mWatcher(watcher)
+            : mWatcher(watcher),
+			mIsMarkedForDeletion(false)
         {
         }
 
@@ -176,8 +182,14 @@ namespace dnssd_uwp
             return mWatcher;
         }
 
+		void MarkForDeletion()
+		{
+			mIsMarkedForDeletion = true;
+			mWatcher->MarkForDeletion();
+		}
     private:
         DnssdServiceDiscovery^ mWatcher;
+		bool mIsMarkedForDeletion;
     };
 };
 

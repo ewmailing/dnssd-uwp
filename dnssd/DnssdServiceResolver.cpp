@@ -68,10 +68,10 @@ namespace dnssd_uwp
 				mTimeOutTimer = nullptr;
 			}
 			// I think I get an exception if I call Stop() twice.
-	//		if(DeviceWatcherStatus::Stopped != mServiceWatcher->Status)
-	//		{
-			mServiceWatcher->Stop();
-	//		}
+			if(DeviceWatcherStatus::Stopped != mServiceWatcher->Status)
+			{
+				mServiceWatcher->Stop();
+			}
 
 			// I'm getting a mysterious exception from another thread in device enumeration
 			// (testing time-out and freeing resolve in callback)
@@ -588,10 +588,30 @@ namespace dnssd_uwp
     {
         // stop the service scanning. Service scanning will be restarted when OnServiceEnumerationStopped event is received
         mServiceWatcher->Stop();
+		/* // OnServiceEnumerationStopped seems to always happen after this, so we'll handle the deletion there.
+		if(mIsMarkedForDeletion)
+		{
+
+		}
+		*/
     }
 
     void DnssdServiceResolver::OnServiceEnumerationStopped(Windows::Devices::Enumeration::DeviceWatcher^ sender, Platform::Object^ args)
     {
+		if(mIsMarkedForDeletion)
+		{
+			try
+			{
+				DnssdServiceResolverWrapper* wrapper_ptr = mWrapperPtr;
+				mWrapperPtr = nullptr;
+				delete wrapper_ptr;
+			}
+			catch(...)
+			{
+				OutputDebugStringW(L"Caught exception deleting DnssdServiceResolverWrapper");
+			}
+			return;
+		}
         // check if we are shutting down
         if (!mRunning)
         {

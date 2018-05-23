@@ -311,6 +311,21 @@ namespace dnssd_uwp
 
     void DnssdServiceDiscovery::OnServiceEnumerationStopped(Windows::Devices::Enumeration::DeviceWatcher^ sender, Platform::Object^ args)
     {
+		if(mIsMarkedForDeletion)
+		{
+			try
+			{
+				DnssdServiceDiscoveryWrapper* wrapper_ptr = mWrapperPtr;
+				mWrapperPtr = nullptr;
+				delete wrapper_ptr;
+			}
+			catch(...)
+			{
+				OutputDebugStringW(L"Caught exception deleting DnssdServiceDiscoveryWrapper");
+			}
+			return;
+		}
+
         // check if we are shutting down
         if (!mRunning)
         {

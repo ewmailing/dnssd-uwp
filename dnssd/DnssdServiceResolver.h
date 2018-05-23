@@ -97,7 +97,11 @@ namespace dnssd_uwp
 		{
 			return mWrapperPtr;
 		}
-
+		void MarkForDeletion()
+		{
+			mIsMarkedForDeletion = true;
+			Stop();
+		}
     private:
         void OnServiceAdded(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformation^ args);
         void OnServiceRemoved(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformationUpdate^ args);
@@ -126,7 +130,7 @@ namespace dnssd_uwp
 
 
 		bool mRunning;
-		bool mEnumerationStopped;
+		bool mIsMarkedForDeletion;
 
 		DnssdServiceResolverWrapper* mWrapperPtr;
 		double mTimeOut;
@@ -138,7 +142,8 @@ namespace dnssd_uwp
     {
     public:
         DnssdServiceResolverWrapper(DnssdServiceResolver ^ watcher)
-            : mWatcher(watcher)
+            : mWatcher(watcher),
+			mIsMarkedForDeletion(false)
         {
         }
 
@@ -151,9 +156,15 @@ namespace dnssd_uwp
         DnssdServiceResolver^ GetWatcher() {
             return mWatcher;
         }
-
+		
+		void MarkForDeletion()
+		{
+			mIsMarkedForDeletion = true;
+			mWatcher->MarkForDeletion();
+		}
     private:
         DnssdServiceResolver^ mWatcher;
+        bool mIsMarkedForDeletion;
     };
 };
 

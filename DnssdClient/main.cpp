@@ -262,6 +262,7 @@ void OnResolveCallback(DnssdServiceResolverPtr service_resolver, const char* ser
 	free(w_domain);
 	free(w_service_type);
 	free(w_service_name);
+//				gDnssdClient->StopResolve();
 
 	LeaveCriticalSection(&gCriticalSection);
 }
@@ -342,7 +343,7 @@ _setmode(_fileno(stdout), _O_U16TEXT);
 #endif // 0
 
 #if 1
-	result = gDnssdClient->StartResolve("MyServiceName", gServiceType, NULL, 0.0, OnResolveCallback, NULL);
+	result = gDnssdClient->StartResolve("MyServiceName", gServiceType, NULL, 5.0, OnResolveCallback, NULL);
 //	result = gDnssdClient->StartResolve(gResolveServiceNameUTF8, gServiceType, NULL, OnResolveCallback, NULL);
 	if (result != DNSSD_NO_ERROR)
     {
