@@ -61,8 +61,11 @@ namespace dnssd_uwp
             mServiceWatcher->Stopped -= mDelegateStopped;
 
             mRunning = false;
-            mServiceWatcher->Stop();
-
+			// I think I get an exception if I call Stop() twice.
+			if(DeviceWatcherStatus::Stopped != mServiceWatcher->Status)
+			{
+				mServiceWatcher->Stop();
+			}
 			// I'm getting a mysterious exception from another thread in device enumeration
 			// (testing time-out and freeing resolve in callback)
 			// I think if this destructor finishes while in the middle of enumeration, this triggers the crash.
