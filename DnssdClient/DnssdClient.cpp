@@ -179,12 +179,12 @@ void DnssdClient::StopDiscovery()
 }
 
 
-DnssdErrorType DnssdClient::StartResolve(const std::string& service_name, const std::string& service_type, const char* domain, DnssdServiceResolverChangedCallback callback_function, void* user_data)
+DnssdErrorType DnssdClient::StartResolve(const std::string& service_name, const std::string& service_type, const char* domain, double time_out, DnssdServiceResolverChangedCallback callback_function, void* user_data)
 {
     // create a dns service 
 //    DnssdErrorType result = mDnssdCreateServiceFunc(serviceName.c_str(), port.c_str(), &mDnssdServicePtr);
 
-	DnssdErrorType result = mDnssdStartResolveFunc(service_name.c_str(), service_type.c_str(), domain, callback_function, user_data, &mDnssdServiceResolverPtr);
+	DnssdErrorType result = mDnssdStartResolveFunc(service_name.c_str(), service_type.c_str(), domain, time_out, callback_function, user_data, &mDnssdServiceResolverPtr);
     return result;
 }
 

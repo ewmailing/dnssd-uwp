@@ -33,9 +33,9 @@ CRITICAL_SECTION gCriticalSection;
 static const char* gServiceName = "_daap._tcp"; // This is misnamed
 static const std::string gServiceType = "_daap._tcp";
 static const std::string gServicePort = "3689";
-//static const char gResolveServiceNameUTF8[] = "Eric Wing\xe2\x80\x99 Music";
+static const char gResolveServiceNameUTF8[] = "Eric Wing\xe2\x80\x99s Music";
 //static const char gResolveServiceNameUTF8[] = "Al\xe2\x80\x99 Music";
-static const std::wstring gResolveServiceName = L"Al’s Music";
+//static const std::wstring gResolveServiceName = L"Al’s Music";
 
 //(uint16_t)std::stoi(port
 uint16_t gNetworkPort = 3689;
@@ -192,11 +192,23 @@ void OnResolveCallback(DnssdServiceResolverPtr service_resolver, const char* ser
 
 
 	wcout << L"*** dnssd OnResolveCallback ***" << endl;
-	wcout << L"service_name: " << w_service_name << endl;
+	if(w_service_name)
+	{
+		wcout << L"service_name: " << w_service_name << endl;
+	}
 	wcout << L"service_type: " << w_service_type << endl;
-	wcout << L"domain: " << w_domain << endl;
-	wcout << L"full_name: " << w_full_name << endl;
-	wcout << L"host_target: " << w_host_target << endl;
+	if(w_domain)
+	{
+		wcout << L"domain: " << w_domain << endl;
+	}
+	if(w_full_name)
+	{
+		wcout << L"full_name: " << w_full_name << endl;
+	}
+	if(w_host_target)
+	{
+		wcout << L"host_target: " << w_host_target << endl;
+	}
 	wcout << L"port: " << port << endl;
 	wcout << L"txt_record_length: " << txt_record_length << endl;
 
@@ -236,7 +248,14 @@ void OnResolveCallback(DnssdServiceResolverPtr service_resolver, const char* ser
 	DNS_STATUS status = DnsQuery_W(w_full_name, DNS_TYPE_A, DNS_QUERY_STANDARD, NULL, NULL, NULL);
 //	DNS_STATUS status = DnsQuery_W(w_full_name, DNS_TYPE_A, DNS_QUERY_STANDARD, NULL, NULL, NULL);
 	wcout << L"status: " << status << endl;
-
+	if(error_code != 0)
+	{
+		if(error_code == DNSSD_RESOLVE_TIMEOUT)
+		{
+			wcout << L"error_code: (This was a resolve timeout)" << endl;
+			gDnssdClient->StopResolve();
+		}
+	}
 
 	free(w_host_target);
 	free(w_full_name);
@@ -323,7 +342,7 @@ _setmode(_fileno(stdout), _O_U16TEXT);
 #endif // 0
 
 #if 1
-	result = gDnssdClient->StartResolve("MyServiceName", gServiceType, NULL, OnResolveCallback, NULL);
+	result = gDnssdClient->StartResolve("MyServiceName", gServiceType, NULL, 0.0, OnResolveCallback, NULL);
 //	result = gDnssdClient->StartResolve(gResolveServiceNameUTF8, gServiceType, NULL, OnResolveCallback, NULL);
 	if (result != DNSSD_NO_ERROR)
     {
@@ -340,14 +359,16 @@ cleanup:
 #if 1
 //	result = gDnssdClient->StartResolve("MyServiceName", gServiceType, NULL, OnResolveCallback, NULL);
 //	result = gDnssdClient->StartResolve("My Test Service", gServiceType, NULL, OnResolveCallback, NULL);
-	char* utf8_str = BlurrrPlatformWindows_CreateUTF8fromWINString(gResolveServiceName.c_str());
-	result = gDnssdClient->StartResolve(utf8_str, gServiceType, NULL, OnResolveCallback, NULL);
+//	char* utf8_str = BlurrrPlatformWindows_CreateUTF8fromWINString(gResolveServiceName.c_str());
+//	result = gDnssdClient->StartResolve(utf8_str, gServiceType, NULL, 0.0, OnResolveCallback, NULL);
+	result = gDnssdClient->StartResolve(gResolveServiceNameUTF8, gServiceType, NULL, 5.0, OnResolveCallback, NULL);
+//	result = gDnssdClient->StartResolve("MyServiceName", gServiceType, NULL, 5.0, OnResolveCallback, NULL);
 	if (result != DNSSD_NO_ERROR)
     {
         wcout << L"Unable to initialize dnssd service watcher" << endl;
         goto cleanup;
     }
-	free(utf8_str);
+//	free(utf8_str);
 #endif
 
     c = _getch();

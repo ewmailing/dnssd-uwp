@@ -41,6 +41,7 @@ extern "C" {
         DNSSD_INVALID_PARAMETER_ERROR,
         DNSSD_MEMORY_ERROR,
         DNSSD_DLL_MISSING_ERROR,                    // dnssd dll not found
+        DNSSD_RESOLVE_TIMEOUT,                    // if the user wants a time out for resolving
         DNSSD_UNSPECIFIED_ERROR
     };
     typedef enum DnssdErrorType DnssdErrorType;
@@ -110,8 +111,8 @@ extern "C" {
 
 	// dnssd service resolve changed callback
     typedef void(*DnssdServiceResolverChangedCallback) (DnssdServiceResolverPtr service_resolver, const char* service_name, const char* service_type, const char* domain, const char* full_name, const char* host_target, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdErrorType error_code, void* user_data);
-	typedef  DnssdErrorType(__cdecl *DnssdStartResolveFunc)(const char* service_name, const char* service_type, const char* domain, DnssdServiceResolverChangedCallback callback_function, void* user_data, DnssdServiceResolverPtr* out_resolver_ptr);
-	DNSSD_API DnssdErrorType __cdecl dnssd_start_resolve(const char* service_name, const char* service_type, const char* domain, DnssdServiceResolverChangedCallback callback_function, void* user_data, DnssdServiceResolverPtr* out_resolver_ptr);
+	typedef  DnssdErrorType(__cdecl *DnssdStartResolveFunc)(const char* service_name, const char* service_type, const char* domain, double time_out, DnssdServiceResolverChangedCallback callback_function, void* user_data, DnssdServiceResolverPtr* out_resolver_ptr);
+	DNSSD_API DnssdErrorType __cdecl dnssd_start_resolve(const char* service_name, const char* service_type, const char* domain, double time_out, DnssdServiceResolverChangedCallback callback_function, void* user_data, DnssdServiceResolverPtr* out_resolver_ptr);
 
 	typedef void(__cdecl *DnssdStopResolveFunc)(DnssdServiceResolverPtr resolver_ptr);
 	DNSSD_API void __cdecl dnssd_stop_resolve(DnssdServiceResolverPtr resolver_ptr);

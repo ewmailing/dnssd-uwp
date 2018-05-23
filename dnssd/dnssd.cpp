@@ -258,7 +258,7 @@ namespace dnssd_uwp
 	}
 
 	
-	DNSSD_API DnssdErrorType dnssd_start_resolve(const char* service_name, const char* service_type, const char* domain, DnssdServiceResolverChangedCallback callback_function, void* user_data, DnssdServiceResolverPtr* out_resolve_ptr)
+	DNSSD_API DnssdErrorType dnssd_start_resolve(const char* service_name, const char* service_type, const char* domain, double time_out, DnssdServiceResolverChangedCallback callback_function, void* user_data, DnssdServiceResolverPtr* out_resolve_ptr)
     {
 		DnssdErrorType result = DNSSD_NO_ERROR;
 		if( (NULL == service_type) || (NULL == service_name) )
@@ -272,7 +272,7 @@ namespace dnssd_uwp
 		}
      //   *serviceWatcher = nullptr;
 
-		auto watcher = ref new DnssdServiceResolver(service_name, service_type, domain, callback_function, user_data);
+		auto watcher = ref new DnssdServiceResolver(service_name, service_type, domain, time_out, callback_function, user_data);
 		// It appears we need to create a wrapper object to keep the ref rooted/counted, otherwise I think the object goes away.
 		auto wrapper = new DnssdServiceResolverWrapper(watcher);
 		// The problem with having a wrapper object is that all the callbacks original inside the original class.

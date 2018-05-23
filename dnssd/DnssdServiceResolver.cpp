@@ -27,17 +27,20 @@ using namespace Windows::Networking::Connectivity;
 using namespace Windows::Devices::Enumeration;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
+using namespace Windows::System::Threading;
 using namespace Platform;
 using namespace concurrency;
 
 namespace dnssd_uwp
 {
 
-    DnssdServiceResolver::DnssdServiceResolver(const char* service_name, const char* service_type, const char* domain, DnssdServiceResolverChangedCallback callback, void* user_data)
+    DnssdServiceResolver::DnssdServiceResolver(const char* service_name, const char* service_type, const char* domain, double time_out, DnssdServiceResolverChangedCallback callback, void* user_data)
         : mDnssdServiceChangedCallback(callback),
 		mUserData(user_data)
         , mRunning(false)
 		, mWrapperPtr(nullptr)
+		, mTimeOut(time_out)
+		, mTimeOutTimer(nullptr)
     {
 		mServiceName = StringToPlatformString(service_name);
 		mServiceType = StringToPlatformString(service_type);
@@ -51,6 +54,7 @@ namespace dnssd_uwp
     {
         if (mServiceWatcher)
         {
+
 			mServiceWatcher->Added -= mDelegateAdded;
             mServiceWatcher->Removed -= mDelegateRemoved;
             mServiceWatcher->Updated -= mDelegateUpdated;
@@ -58,7 +62,26 @@ namespace dnssd_uwp
             mServiceWatcher->Stopped -= mDelegateStopped;
 
             mRunning = false;
-            mServiceWatcher->Stop();
+			if(mTimeOutTimer)
+			{
+				mTimeOutTimer->Cancel();
+				mTimeOutTimer = nullptr;
+			}
+			// I think I get an exception if I call Stop() twice.
+	//		if(DeviceWatcherStatus::Stopped != mServiceWatcher->Status)
+	//		{
+			mServiceWatcher->Stop();
+	//		}
+
+			// I'm getting a mysterious exception from another thread in device enumeration
+			// (testing time-out and freeing resolve in callback)
+			// I think if this destructor finishes while in the middle of enumeration, this triggers the crash.
+			// So wait/block until enumeration is completely stopped.
+			while(DeviceWatcherStatus::Stopped != mServiceWatcher->Status)
+			{
+			}
+			 
+
             mServiceWatcher = nullptr;
 			mWrapperPtr = nullptr; // you are expected to explictly delete the wrapper which will cause this instance to be released
         }
@@ -132,6 +155,7 @@ namespace dnssd_uwp
 		DnssdServiceResolverWrapper* wrapper_ptr = mWrapperPtr;
 		std::string domain;
 		bool is_domain_null = true;
+		double time_out = mTimeOut;
 		if(mDomain)
 		{
 			domain = PlatformStringToString(mDomain);
@@ -139,7 +163,8 @@ namespace dnssd_uwp
 		}
 
 			// I don't think I am doing the task<> parameter correctly.
-		task.then([wrapper_ptr, service_type, domain, is_domain_null, resolve_callback, user_data](auto task_result)
+//		task.then([wrapper_ptr, service_type, domain, is_domain_null, time_out, resolve_callback, user_data](auto task_result)
+		task.then([this, wrapper_ptr, service_type, domain, is_domain_null, time_out, resolve_callback, user_data](auto task_result)
 //		task.then([task, this, service_type, resolve_callback, user_data](auto task_result)
 		{
 
@@ -148,6 +173,64 @@ namespace dnssd_uwp
 				// wait for port enumeration to complete
 //				task.get(); // will throw any exceptions from above task
 				task_result.get(); // will throw any exceptions from above task
+
+				if(time_out > 0.0)
+				{
+					TimeSpan delay;
+					delay.Duration = (long long)(time_out * 10000000); // 10,000,000 ticks per second
+
+					ThreadPoolTimer^ delay_timer = ThreadPoolTimer::CreateTimer(
+				        ref new TimerElapsedHandler([this, wrapper_ptr, service_type, domain, is_domain_null, time_out, resolve_callback, user_data](ThreadPoolTimer^ source)
+						{
+							//
+							// TODO: Work
+							//
+            
+							//
+							/*
+							Dispatcher->RunAsync(CoreDispatcherPriority::High,
+								ref new DispatchedHandler([this]()
+								{
+									//
+									// UI components can be accessed within this scope.
+									//
+
+									ExampleUIUpdateMethod("Timer completed.");
+
+								}));
+							*/
+							mLock.lock();
+							const char* domain_c_str = NULL;
+							if(is_domain_null)
+							{
+								domain_c_str = domain.c_str();
+							}
+							mTimeOutTimer = nullptr;
+
+							if(mRunning)
+							{
+								resolve_callback(
+									(DnssdServiceResolverPtr)wrapper_ptr, 
+									NULL, // service_name
+									service_type.c_str(),
+									domain_c_str,
+									NULL, // full_name
+									NULL, // host target
+									mRunning, //port
+									NULL, // txtRecord
+									0, // txt length
+									DNSSD_RESOLVE_TIMEOUT,
+									mUserData
+								);
+							}
+							mLock.unlock();
+
+							this->Stop();
+
+						}), delay);
+
+					mTimeOutTimer = delay_timer;
+				}
 //				return DNSSD_NO_ERROR;
 			}
 			catch (Platform::Exception^ ex)
@@ -180,9 +263,19 @@ namespace dnssd_uwp
 
     }
 
+	// This is only called by the timeout. I'm not sure if this should be kept.
+	// From an API perspective, I can't really delete the service for the user because they should control their own handles for consistency.
+	// I'm also concerned about deadlocking in callbacks or crashes trying to delete things in callbacks. 
 	void DnssdServiceResolver::Stop()
 	{
 		mLock.lock();
+//		mServiceWatcher->Stop();
+
+		if(mTimeOutTimer)
+		{
+			mTimeOutTimer->Cancel();
+			mTimeOutTimer = nullptr;
+		}
 		mRunning = false;
 		mLock.unlock();
 	}
@@ -539,8 +632,11 @@ namespace dnssd_uwp
             }
         });
 
-        // restart the service scan
-        mServiceWatcher->Start();
+		if(mRunning)
+		{
+	        // restart the service scan
+	        mServiceWatcher->Start();
+		}
 
 		mLock.unlock();
     }

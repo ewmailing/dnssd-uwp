@@ -62,6 +62,16 @@ namespace dnssd_uwp
 
             mRunning = false;
             mServiceWatcher->Stop();
+
+			// I'm getting a mysterious exception from another thread in device enumeration
+			// (testing time-out and freeing resolve in callback)
+			// I think if this destructor finishes while in the middle of enumeration, this triggers the crash.
+			// So wait/block until enumeration is completely stopped.
+			while(DeviceWatcherStatus::Stopped != mServiceWatcher->Status)
+			{
+			}
+			 
+
             mServiceWatcher = nullptr;
 			mWrapperPtr = nullptr; // you are expected to explictly delete the wrapper which will cause this instance to be released
         }

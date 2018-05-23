@@ -34,7 +34,7 @@ namespace dnssd_uwp
 		void UnregisterDnssdService();
 		DnssdErrorType StartDiscovery(const std::string& service_type, const char* domain, DnssdServiceDiscoveryChangedCallback callback_function, void* user_data);
 		void StopDiscovery();
-		DnssdErrorType StartResolve(const std::string& service_name, const std::string& service_type, const char* domain, DnssdServiceResolverChangedCallback callback_function, void* user_data);
+		DnssdErrorType StartResolve(const std::string& service_name, const std::string& service_type, const char* domain, double time_out, DnssdServiceResolverChangedCallback callback_function, void* user_data);
 		void StopResolve();
 
 	private:

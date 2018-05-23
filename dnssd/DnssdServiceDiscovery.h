@@ -140,7 +140,7 @@ namespace dnssd_uwp
         std::vector<DnssdDiscoveryCallbackInfo> mPendingServicesToCallback;
 #endif
 
-		std::mutex mLock;
+		std::recursive_mutex mLock;
 		bool mRunning;
 
 		DnssdServiceDiscoveryWrapper* mWrapperPtr;

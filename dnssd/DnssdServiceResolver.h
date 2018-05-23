@@ -87,7 +87,7 @@ namespace dnssd_uwp
         };
        
         // Constructor needs to be internal as this is an unsealed ref base class
-        DnssdServiceResolver(const char* service_name, const char* service_type, const char* domain, DnssdServiceResolverChangedCallback callback, void* user_data);
+        DnssdServiceResolver(const char* service_name, const char* service_type, const char* domain, double time_out, DnssdServiceResolverChangedCallback callback, void* user_data);
 
 		void SetWrapperPtr(DnssdServiceResolverWrapper* wrapper_ptr)
 		{
@@ -122,12 +122,15 @@ namespace dnssd_uwp
         Platform::String^ mServiceName;
         Platform::String^ mServiceType;
         Platform::String^ mDomain;
-		std::mutex mLock;
+		std::recursive_mutex mLock;
 
 
 		bool mRunning;
+		bool mEnumerationStopped;
 
 		DnssdServiceResolverWrapper* mWrapperPtr;
+		double mTimeOut;
+		Windows::System::Threading::ThreadPoolTimer^ mTimeOutTimer;
     };
 
 
