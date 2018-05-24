@@ -44,7 +44,15 @@ extern "C" {
         DNSSD_RESOLVE_TIMEOUT,                    // if the user wants a time out for resolving
         DNSSD_UNSPECIFIED_ERROR
     };
+
     typedef enum DnssdErrorType DnssdErrorType;
+
+	enum DnssdCallbackFlags {
+		DNSSD_FLAGS_ADD = 0x1 /**< If set, add this service to your list. If not set, remove this service from your list. */
+//		BNSD_FLAGS_MORECOMING = 0x2 /* Not supported */ 
+    };
+    typedef enum DnssdCallbackFlags DnssdCallbackFlags;
+
 
     typedef void* DnssdServicePtr;
     typedef void* DnssdServiceDiscoveryPtr;
@@ -101,7 +109,7 @@ extern "C" {
 
 	
     // dnssd service discovery changed callback
-    typedef void(*DnssdServiceDiscoveryChangedCallback) (DnssdServiceDiscoveryPtr service_discovery, const char* service_name, const char* domain, const char* service_type, uint32_t flags, DnssdErrorType error_code, void* user_data);
+    typedef void(*DnssdServiceDiscoveryChangedCallback) (DnssdServiceDiscoveryPtr service_discovery, const char* service_name, const char* service_type, const char* domain, uint32_t flags, DnssdErrorType error_code, void* user_data);
 	typedef  DnssdErrorType(__cdecl *DnssdStartDiscoveryFunc)(const char* service_type, const char* domain, DnssdServiceDiscoveryChangedCallback callback_function, void* user_data, DnssdServiceDiscoveryPtr* out_discovery_ptr);
 	DNSSD_API DnssdErrorType __cdecl dnssd_start_discovery(const char* service_type, const char* domain, DnssdServiceDiscoveryChangedCallback callback_function, void* user_data, DnssdServiceDiscoveryPtr* out_discovery_ptr);
 

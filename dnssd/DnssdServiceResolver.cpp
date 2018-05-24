@@ -581,7 +581,7 @@ namespace dnssd_uwp
 
     void DnssdServiceResolver::OnServiceRemoved(DeviceWatcher^ sender, DeviceInformationUpdate^ args)
     {
-        UpdateDnssdService(DnssdServiceUpdateType::ServiceUpdated, args->Properties, args->Id);
+        UpdateDnssdService(DnssdServiceUpdateType::ServiceRemoved, args->Properties, args->Id);
     }
 
     void DnssdServiceResolver::OnServiceEnumerationCompleted(DeviceWatcher^ sender, Platform::Object^ args)

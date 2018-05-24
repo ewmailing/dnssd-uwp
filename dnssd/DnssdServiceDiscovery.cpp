@@ -303,7 +303,7 @@ namespace dnssd_uwp
 
     void DnssdServiceDiscovery::OnServiceRemoved(DeviceWatcher^ sender, DeviceInformationUpdate^ args)
     {
-        UpdateDnssdService(DnssdServiceUpdateType::ServiceUpdated, args->Properties, args->Id);
+        UpdateDnssdService(DnssdServiceUpdateType::ServiceRemoved, args->Properties, args->Id);
     }
 
     void DnssdServiceDiscovery::OnServiceEnumerationCompleted(DeviceWatcher^ sender, Platform::Object^ args)
@@ -426,23 +426,23 @@ namespace dnssd_uwp
 
 		if(DnssdServiceUpdateType::ServiceAdded == updateType)
 		{
-			flag_mask = 0x1;
+			flag_mask |= DNSSD_FLAGS_ADD;
 		}
 		else if(DnssdServiceUpdateType::ServiceUpdated == updateType)
 		{
 			// I don't know what to do with this value since we are only supposed to get add or remove.
 			// Make an add for now.
 			OutputDebugStringW(L"WARNING: Unexpected 'update' to service (not an add or remove). Making an add.");
-			flag_mask = 0x1;
+			flag_mask |= DNSSD_FLAGS_ADD;
 		}
 		// We don't give updated events for discovery because a service is either added or removed. There is no other data.
 		else
 		{
-			flag_mask = 0x0;
 		}
+
 		if(more_coming)
 		{
-			flag_mask |= 0x2;
+			flag_mask |= 0x2; // DNSSD_FLAGS_MORECOMING
 		}
 		return flag_mask;
 	}
