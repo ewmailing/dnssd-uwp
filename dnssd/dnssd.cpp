@@ -40,6 +40,7 @@ namespace dnssd_uwp
             if (!SUCCEEDED(hr))
             {
                 result = DNSSD_WINDOWS_RUNTIME_INITIALIZATION_ERROR;
+				OutputDebugStringW(L"Windows::Foundation::Initialize(RO_INIT_MULTITHREADED) failed. Did some other library call CoInitialize() before this? Try calling this before those other libraries.");
             }
             else
             {
