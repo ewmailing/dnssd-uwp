@@ -149,6 +149,7 @@ namespace dnssd_uwp
 
         }));
 
+		std::string service_name = PlatformStringToString(mServiceName);
 		std::string service_type = PlatformStringToString(mServiceType);
 		DnssdServiceResolverChangedCallback resolve_callback = mDnssdServiceChangedCallback;
 		void* user_data = mUserData;
@@ -164,7 +165,7 @@ namespace dnssd_uwp
 
 			// I don't think I am doing the task<> parameter correctly.
 //		task.then([wrapper_ptr, service_type, domain, is_domain_null, time_out, resolve_callback, user_data](auto task_result)
-		task.then([this, wrapper_ptr, service_type, domain, is_domain_null, time_out, resolve_callback, user_data](auto task_result)
+		task.then([this, wrapper_ptr, service_name, service_type, domain, is_domain_null, time_out, resolve_callback, user_data](auto task_result)
 //		task.then([task, this, service_type, resolve_callback, user_data](auto task_result)
 		{
 
@@ -180,7 +181,7 @@ namespace dnssd_uwp
 					delay.Duration = (long long)(time_out * 10000000); // 10,000,000 ticks per second
 
 					ThreadPoolTimer^ delay_timer = ThreadPoolTimer::CreateTimer(
-				        ref new TimerElapsedHandler([this, wrapper_ptr, service_type, domain, is_domain_null, time_out, resolve_callback, user_data](ThreadPoolTimer^ source)
+				        ref new TimerElapsedHandler([this, wrapper_ptr, service_name, service_type, domain, is_domain_null, time_out, resolve_callback, user_data](ThreadPoolTimer^ source)
 						{
 							//
 							// TODO: Work
@@ -211,12 +212,12 @@ namespace dnssd_uwp
 							{
 								resolve_callback(
 									(DnssdServiceResolverPtr)wrapper_ptr, 
-									NULL, // service_name
+									service_name.c_str(), // service_name
 									service_type.c_str(),
 									domain_c_str,
 									NULL, // full_name
 									NULL, // host target
-									mRunning, //port
+									0, //port
 									NULL, // txtRecord
 									0, // txt length
 									DNSSD_RESOLVE_TIMEOUT,
@@ -268,7 +269,10 @@ namespace dnssd_uwp
 	// I'm also concerned about deadlocking in callbacks or crashes trying to delete things in callbacks. 
 	void DnssdServiceResolver::Stop()
 	{
-		mLock.lock();
+		// grrr. I think I hit a deadlock in a shutdown condition.
+//		mLock.lock();
+
+		
 //		mServiceWatcher->Stop();
 
 		if(mTimeOutTimer)
@@ -277,7 +281,9 @@ namespace dnssd_uwp
 			mTimeOutTimer = nullptr;
 		}
 		mRunning = false;
-		mLock.unlock();
+
+		// grrr. I think I hit a deadlock in a shutdown condition
+//		mLock.unlock();
 	}
 
     void DnssdServiceResolver::UpdateDnssdService(DnssdServiceUpdateType type, Windows::Foundation::Collections::IMapView<Platform::String^, Platform::Object^>^ props, Platform::String^ serviceId)
@@ -489,8 +495,9 @@ namespace dnssd_uwp
         if (mDnssdServiceChangedCallback != nullptr)
         {
 			// Create a buffer long enough to hold our string with converted escaped characters.
+			// Er...is it slash + 3 digits = 4 bytes per character?
 			size_t str_len = full_name.length();
-			size_t tmp_buf_len = full_name.length() * 8 + 1;
+			size_t tmp_buf_len = full_name.length() * 4 + 1;
 			const char* original_str = full_name.c_str(); 
 			char* dns_full_name = (char*)calloc(tmp_buf_len, sizeof(char));
 			for(size_t i=0, j=0; i<str_len; i++)
@@ -512,10 +519,10 @@ namespace dnssd_uwp
 					char tmp_buffer[33];
 					dns_full_name[j] = '\\';
 					j++;
-					dns_full_name[j] = 'x';
-					j++;
+//					dns_full_name[j] = 'x';
+//					j++;
 
-					sprintf_s(tmp_buffer, 33, "%02x", (original_str[i] & 0xFF));
+					sprintf_s(tmp_buffer, 33, "%03u", (original_str[i] & 0xFF));
 					{
 						size_t k=0;
 						while(tmp_buffer[k] != '\0')

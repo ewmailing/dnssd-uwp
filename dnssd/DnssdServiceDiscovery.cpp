@@ -186,9 +186,10 @@ namespace dnssd_uwp
 
 	void DnssdServiceDiscovery::Stop()
 	{
-		mLock.lock();
+		// grrr. I think I hit a deadlock in a shutdown condition.
+//		mLock.lock();
 		mRunning = false;
-		mLock.unlock();
+//		mLock.unlock();
 	}
 
 
