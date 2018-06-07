@@ -39,14 +39,14 @@ namespace dnssd_uwp
         , mRunning(false)
 		, mWrapperPtr(nullptr)
     {
-        mServiceType = StringToPlatformString(service_type);
+        mServiceType = StringToPlatformString(RemoveTrailingDotIfNecessary(service_type));
 		if( (NULL == domain) || (0==strcmp(domain, "")) )
 		{
 			mDomain = nullptr;
 		}
 		else
 		{
-			mDomain = StringToPlatformString(domain);
+			mDomain = StringToPlatformString(RemoveTrailingDotIfNecessary(domain));
 		}
     }
 
@@ -153,7 +153,13 @@ namespace dnssd_uwp
 			const char* domain_c_str = NULL;
 			if(is_domain_null)
 			{
-				domain_c_str = domain.c_str();
+				// WARNING: If this code or the MS backend ever changes so that NULL for the domain searches things other than local,
+				// then hardcoding this to local. will not work and we must figure out what that domain is.
+				domain_c_str = "local.";
+			}
+			else
+			{
+				domain_c_str = AppendTrailingDotIfNecessary(domain).c_str();
 			}
 
 			try
@@ -169,7 +175,7 @@ namespace dnssd_uwp
 				discovery_callback(
 					(DnssdServiceDiscoveryPtr)wrapper_ptr, 
 					NULL,
-					service_type.c_str(),
+					AppendTrailingDotIfNecessary(service_type).c_str(),
 					domain_c_str, // domain
 					0,
 					DNSSD_SERVICEWATCHER_INITIALIZATION_ERROR, 
@@ -252,14 +258,20 @@ namespace dnssd_uwp
     {
 
 		std::string instanceName = PlatformStringToString(info->mInstanceName);
-        std::string service_type = PlatformStringToString(info->mServiceType);
+        std::string service_type = AppendTrailingDotIfNecessary(PlatformStringToString(info->mServiceType));
 		std::string domain;
 		const char* domain_c_str = NULL;
 		if(info->mDomain != nullptr)
 		{
-			domain = PlatformStringToString(info->mDomain);
-			domain_c_str = domain.c_str();
+			domain = AppendTrailingDotIfNecessary(PlatformStringToString(info->mDomain));
 		}
+		else
+		{
+			// WARNING: If this code or the MS backend ever changes so that NULL for the domain searches things other than local,
+			// then hardcoding this to local. will not work and we must figure out what that domain is.
+			domain = "local.";
+		}
+		domain_c_str = domain.c_str();
 
 
 
@@ -376,8 +388,8 @@ namespace dnssd_uwp
 					mDnssdServiceChangedCallback(
 						(DnssdServiceDiscoveryPtr)this, 
 						callback_info.serviceName.c_str(),
-						callback_info.serviceType.c_str(), 
-						callback_info.mDomain.c_str(), 
+						AppendTrailingDotIfNecessary(callback_info.serviceType).c_str(), 
+						AppendTrailingDotIfNecessary(callback_info.mDomain).c_str(), 
 						flags, 
 						callback_info.errorType, 
 						mUserData
@@ -392,8 +404,8 @@ namespace dnssd_uwp
 					mDnssdServiceChangedCallback(
 						(DnssdServiceDiscoveryPtr)mWrapperPtr, 
 						callback_info.serviceName.c_str(),
-						callback_info.serviceType.c_str(), 
-						callback_info.mDomain.c_str(), 
+						AppendTrailingDotIfNecessary(callback_info.serviceType).c_str(), 
+						AppendTrailingDotIfNecessary(callback_info.mDomain).c_str(), 
 						flags, 
 						callback_info.errorType, 
 						mUserData

@@ -30,8 +30,10 @@ using namespace dnssd_uwp;
 CRITICAL_SECTION gCriticalSection;
 
 //static const std::string gServiceName = "_daap._tcp"; // This is misnamed
-static const char* gServiceName = "_daap._tcp"; // This is misnamed
-static const std::string gServiceType = "_daap._tcp";
+//static const char* gServiceName = "_daap._tcp"; // This is misnamed
+//static const std::string gServiceType = "_daap._tcp";
+static const char* gServiceName = "_daap._tcp."; // This is misnamed
+static const std::string gServiceType = "_daap._tcp.";
 static const std::string gServicePort = "3689";
 static const char gResolveServiceNameUTF8[] = "Eric Wing\xe2\x80\x99s Music";
 //static const char gResolveServiceNameUTF8[] = "Al\xe2\x80\x99 Music";
@@ -321,7 +323,8 @@ _setmode(_fileno(stdout), _O_U16TEXT);
     InitializeCriticalSection(&gCriticalSection);
 #if 1
 //    result = gDnssdClient->InitializeDnssdServiceWatcher(gServiceName, gServicePort, dnssdServiceChangedCallback);
-    result = gDnssdClient->StartDiscovery(gServiceType, "", OnDiscoveryCallback, NULL);
+    result = gDnssdClient->StartDiscovery(gServiceType, NULL, OnDiscoveryCallback, NULL);
+//    result = gDnssdClient->StartDiscovery(gServiceType, "local.", OnDiscoveryCallback, NULL);
 	if (result != DNSSD_NO_ERROR)
     {
         wcout << L"Unable to initialize dnssd service watcher" << endl;
@@ -362,6 +365,7 @@ cleanup:
 //	result = gDnssdClient->StartResolve("My Test Service", gServiceType, NULL, OnResolveCallback, NULL);
 //	char* utf8_str = BlurrrPlatformWindows_CreateUTF8fromWINString(gResolveServiceName.c_str());
 //	result = gDnssdClient->StartResolve(utf8_str, gServiceType, NULL, 0.0, OnResolveCallback, NULL);
+//	result = gDnssdClient->StartResolve(gResolveServiceNameUTF8, gServiceType, "local.", 5.0, OnResolveCallback, NULL);
 	result = gDnssdClient->StartResolve(gResolveServiceNameUTF8, gServiceType, NULL, 5.0, OnResolveCallback, NULL);
 //	result = gDnssdClient->StartResolve("MyServiceName", gServiceType, NULL, 5.0, OnResolveCallback, NULL);
 	if (result != DNSSD_NO_ERROR)

@@ -43,10 +43,10 @@ namespace dnssd_uwp
 		, mTimeOutTimer(nullptr)
     {
 		mServiceName = StringToPlatformString(service_name);
-		mServiceType = StringToPlatformString(service_type);
+		mServiceType = StringToPlatformString(AppendTrailingDotIfNecessary(service_type));
 		if(domain != NULL)
 		{
-			mDomain = StringToPlatformString(domain);
+			mDomain = StringToPlatformString(AppendTrailingDotIfNecessary(domain));
 		}
     }
 
@@ -150,7 +150,7 @@ namespace dnssd_uwp
         }));
 
 		std::string service_name = PlatformStringToString(mServiceName);
-		std::string service_type = PlatformStringToString(mServiceType);
+		std::string service_type = AppendTrailingDotIfNecessary(PlatformStringToString(mServiceType));
 		DnssdServiceResolverChangedCallback resolve_callback = mDnssdServiceChangedCallback;
 		void* user_data = mUserData;
 		DnssdServiceResolverWrapper* wrapper_ptr = mWrapperPtr;
@@ -159,8 +159,14 @@ namespace dnssd_uwp
 		double time_out = mTimeOut;
 		if(mDomain)
 		{
-			domain = PlatformStringToString(mDomain);
+			domain = AppendTrailingDotIfNecessary(PlatformStringToString(mDomain));
 			is_domain_null = false;
+		}
+		else
+		{
+			// WARNING: If this code or the MS backend ever changes so that NULL for the domain searches things other than local,
+			// then hardcoding this to local. will not work and we must figure out what that domain is.
+			domain = "local.";
 		}
 
 			// I don't think I am doing the task<> parameter correctly.
@@ -483,13 +489,23 @@ namespace dnssd_uwp
     {
 
 		std::string service_name = PlatformStringToString(info->mInstanceName);
-        std::string service_type = PlatformStringToString(info->mServiceType);
-        std::string domain = PlatformStringToString(info->mDomain);
-        std::string full_name = PlatformStringToString(info->mFullName);
+        std::string service_type = AppendTrailingDotIfNecessary(PlatformStringToString(info->mServiceType));
+        std::string full_name = AppendTrailingDotIfNecessary(PlatformStringToString(info->mFullName));
 //		std::string host_target = PlatformStringToString(info->mHostTarget);
 //		std::string txt_record = PlatformStringToString(info->mTxtRecord);
 		uint16_t port = info->networkPort;
 
+        std::string domain;
+		if(info->mDomain == nullptr)
+		{
+			// WARNING: If this code or the MS backend ever changes so that NULL for the domain searches things other than local,
+			// then hardcoding this to local. will not work and we must figure out what that domain is.
+			domain = "local.";
+		}
+		else
+		{
+			domain = AppendTrailingDotIfNecessary(PlatformStringToString(info->mDomain));
+		}
 
 
         if (mDnssdServiceChangedCallback != nullptr)

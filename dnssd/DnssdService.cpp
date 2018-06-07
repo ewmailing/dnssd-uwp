@@ -64,11 +64,12 @@ DnssdService::DnssdService(const char* service_name, const char* service_type, c
 
 
 
-	mServiceTypeStr = service_type;
-	mServiceType = StringToPlatformString(service_type);
+	mServiceTypeStr = RemoveTrailingDotIfNecessary(service_type);
+	mServiceType = StringToPlatformString(mServiceTypeStr);
+
 	if(domain != NULL)
 	{
-		mDomain = StringToPlatformString(domain);
+		mDomain = StringToPlatformString(RemoveTrailingDotIfNecessary(domain));
 	}
 	else
 	{
@@ -373,10 +374,27 @@ DnssdErrorType DnssdService::StartRegistration()
 				std::string service_name_adjusted = service_name;
 				if(hasInstanceChanged)
 				{
+					// Microsoft bug?: DnssdServiceInstanceName is supposed to return just the service name
+					// Docs: Instance portion of DNS-SD service instance name.(e.g. "myservice" in "myservice._http._tcp.local")
+					// https://msdn.microsoft.com/en-us/library/windows/desktop/mt805679(v=vs.85).aspx
+					// But I'm getting the fullname: "myservice._http._tcp.local"
 					service_name_adjusted = PlatformStringToString(mService->DnssdServiceInstanceName);
+					// So remove everything after the first dot.
+					std::string::size_type idx;
+
+					idx = service_name_adjusted.find('.');
+					if(idx != std::string::npos)
+					{
+						service_name_adjusted = service_name_adjusted.substr(0, idx);
+					}
+					else
+					{
+						// No dot found
+					}
+
 				}
 
-				register_callback(wrapper_ptr, service_name_adjusted.c_str(), service_type.c_str(), domain.c_str(), network_port, result, register_callback_user_data);
+				register_callback(wrapper_ptr, service_name_adjusted.c_str(), AppendTrailingDotIfNecessary(service_type).c_str(), AppendTrailingDotIfNecessary(domain).c_str(), network_port, result, register_callback_user_data);
 			}
 			//return result;
 		}
@@ -385,7 +403,7 @@ DnssdErrorType DnssdService::StartRegistration()
 			result =  DNSSD_SERVICE_INITIALIZATION_ERROR;
 			if(NULL != register_callback)
 			{
-				register_callback(wrapper_ptr, service_name.c_str(), service_type.c_str(), domain.c_str(), network_port, result, register_callback_user_data);
+				register_callback(wrapper_ptr, service_name.c_str(), AppendTrailingDotIfNecessary(service_type).c_str(), AppendTrailingDotIfNecessary(domain).c_str(), network_port, result, register_callback_user_data);
 			}
 		}
 

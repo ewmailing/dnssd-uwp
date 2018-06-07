@@ -25,6 +25,17 @@ namespace dnssd_uwp
     std::string PlatformStringToString2(Platform::String^ s);
 	char* CreateUTF8fromWStr(const wchar_t* input_wstr);
 
+	// Trailing dots in names are technically correct and pedantic,
+	// http://www.dns-sd.org/trailingdotsindomainnames.html
+	// but the Windows APIs don't seem to handle it correctly.
+	// So remove the trailing dot if provided.
+	// Use copy-by-value for best performance? (Chandler Carruth, Dave Abrahams)
+	std::string RemoveTrailingDotIfNecessary(std::string in_str);
+
+	// For consistency with Bonjour, always add the trailing dot back
+	// Use copy-by-value for best performance? (Chandler Carruth, Dave Abrahams)
+	std::string AppendTrailingDotIfNecessary(std::string in_str);
+
 
 #ifdef DNSSDUWP_USE_LEGACY
 #else

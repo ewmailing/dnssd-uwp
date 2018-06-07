@@ -10,7 +10,7 @@
 // THE CODE OR THE USE OR OTHER DEALINGS IN THE CODE.
 // ******************************************************************
 
-#include "DnssdServiceWatcher.h"
+//#include "DnssdServiceWatcher.h"
 #include <algorithm>
 #include <cvt/wstring>
 #include <codecvt>
@@ -88,6 +88,40 @@ namespace dnssd_uwp
 		}
 		return output_utf8str;
 	}
+
+
+
+	// Trailing dots in names are technically correct and pedantic,
+	// http://www.dns-sd.org/trailingdotsindomainnames.html
+	// but the Windows APIs don't seem to handle it correctly.
+	// So remove the trailing dot if provided.
+	// Use copy-by-value for best performance? (Chandler Carruth, Dave Abrahams)
+	std::string RemoveTrailingDotIfNecessary(std::string in_str)
+	{
+		std::string ret_str = in_str;
+
+		if('.' == ret_str.back())
+		{
+			ret_str.pop_back();
+		}
+		return ret_str;
+	}
+
+	// For consistency with Bonjour, always add the trailing dot back
+	// Use copy-by-value for best performance? (Chandler Carruth, Dave Abrahams)
+	std::string AppendTrailingDotIfNecessary(std::string in_str)
+	{
+		if('.' != in_str.back())
+		{
+			return (in_str + ".");
+		}
+		else
+		{
+			return in_str;
+		}
+	}
+
+
 
 }
 
