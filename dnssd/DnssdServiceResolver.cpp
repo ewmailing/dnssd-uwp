@@ -43,10 +43,10 @@ namespace dnssd_uwp
 		, mTimeOutTimer(nullptr)
     {
 		mServiceName = StringToPlatformString(service_name);
-		mServiceType = StringToPlatformString(AppendTrailingDotIfNecessary(service_type));
+		mServiceType = StringToPlatformString(RemoveTrailingDotIfNecessary(service_type));
 		if(domain != NULL)
 		{
-			mDomain = StringToPlatformString(AppendTrailingDotIfNecessary(domain));
+			mDomain = StringToPlatformString(RemoveTrailingDotIfNecessary(domain));
 		}
     }
 
