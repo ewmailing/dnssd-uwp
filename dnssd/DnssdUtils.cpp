@@ -57,6 +57,10 @@ namespace dnssd_uwp
 
     std::string PlatformStringToString(Platform::String^ s)
     {
+		if(s==nullptr)
+		{
+			return std::string("");
+		}
         int bufferSize = WideCharToMultiByte(CP_UTF8, 0, s->Data(), -1, nullptr, 0, NULL, NULL);
         auto utf8 = std::make_unique<char[]>(bufferSize);
         if (0 == WideCharToMultiByte(CP_UTF8, 0, s->Data(), -1, utf8.get(), bufferSize, NULL, NULL))
@@ -98,7 +102,12 @@ namespace dnssd_uwp
 	// Use copy-by-value for best performance? (Chandler Carruth, Dave Abrahams)
 	std::string RemoveTrailingDotIfNecessary(std::string in_str)
 	{
+		if(in_str.empty())
+		{
+			return in_str;
+		}
 		std::string ret_str = in_str;
+
 
 		if('.' == ret_str.back())
 		{
@@ -111,6 +120,10 @@ namespace dnssd_uwp
 	// Use copy-by-value for best performance? (Chandler Carruth, Dave Abrahams)
 	std::string AppendTrailingDotIfNecessary(std::string in_str)
 	{
+		if(in_str.empty())
+		{
+			return std::string(".");
+		}
 		if('.' != in_str.back())
 		{
 			return (in_str + ".");
