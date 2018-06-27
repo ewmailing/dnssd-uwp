@@ -566,6 +566,17 @@ namespace dnssd_uwp
 				txt_record = info->mCombinedTxtRecord.data();
 			}
 
+			// Avahi comments say this:
+			/* Empty lists are treated specially. To comply with
+			* section 6.1 of the DNS-SD spec, we return a single
+			* empty string (i.e. a NUL byte)*/
+			char null_byte_txt_record[1] = { 0 };
+			if(0 == txt_record_length)
+			{
+				txt_record = null_byte_txt_record;
+				txt_record_length = 1;
+			}
+
 			//	    typedef void(*DnssdServiceResolverChangedCallback) (DnssdServiceResolverPtr service_resolver, const char* full_name, const char* host_target, uint16_t port, const char* txt_record, uint16_t txt_record_length, DnssdErrorType error_code, void* user_data);
 
 			if(mRunning)
